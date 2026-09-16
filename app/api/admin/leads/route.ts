@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-guard';
-import { ensureSchema, getSql, type Lead } from '@/lib/db';
+import { getPrisma } from '@/lib/prisma';
 
 export async function GET() {
     if (!(await requireAdminSession())) {
@@ -9,9 +9,8 @@ export async function GET() {
     }
 
     try {
-        await ensureSchema();
-        const sql = getSql();
-        const leads = (await sql`SELECT * FROM leads ORDER BY created_at DESC`) as Lead[];
+        const prisma = getPrisma();
+        const leads = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
         return NextResponse.json({ leads });
     } catch (error) {
         console.error('Failed to load leads', error);

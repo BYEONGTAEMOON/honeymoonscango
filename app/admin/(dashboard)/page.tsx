@@ -1,6 +1,8 @@
 import Link from 'next/link';
 
-import { ensureSchema, getSql, type Lead } from '@/lib/db';
+import type { Lead } from '@/generated/prisma/client';
+import { formatDateTime } from '@/lib/format';
+import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,9 +10,8 @@ const STATUS_LIST = ['신규', '연락중', '예약완료', '취소'];
 
 async function loadDashboardData(): Promise<{ leads: Lead[]; error: string | null }> {
     try {
-        await ensureSchema();
-        const sql = getSql();
-        const leads = (await sql`SELECT * FROM leads ORDER BY created_at DESC`) as Lead[];
+        const prisma = getPrisma();
+        const leads = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
         return { leads, error: null };
     } catch (error) {
         return { leads: [], error: error instanceof Error ? error.message : '데이터베이스에 연결할 수 없습니다.' };
@@ -27,8 +28,9 @@ export default async function AdminDashboardPage() {
                 <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-relaxed text-amber-900">
                     <p className="font-semibold">데이터베이스가 아직 연결되지 않았어요.</p>
                     <p className="mt-2">
-                        Vercel 프로젝트의 Storage 탭에서 Postgres(Neon)를 연결하고, 아래 환경변수를 설정한 뒤 다시
-                        배포해주세요.
+                        Vercel 프로젝트의 Storage 탭에서 Prisma Postgres를 연결하고, 아래 환경변수를 설정한 뒤 다시
+                        배포해주세요. (첫 연결 후에는 <code>npx prisma db push</code>를 한 번 실행해 테이블을
+                        만들어야 해요.)
                     </p>
                     <ul className="mt-3 list-disc space-y-1 pl-5 font-mono text-xs">
                         <li>DATABASE_URL</li>
@@ -86,7 +88,7 @@ export default async function AdminDashboardPage() {
                                         {lead.name ?? '이름 미입력'} · {lead.destination ?? '-'}
                                     </p>
                                     <p className="mt-0.5 truncate text-xs text-gray-400">
-                                        {lead.phone ?? '-'} · {new Date(lead.created_at).toLocaleString('ko-KR')}
+                                        {lead.phone ?? '-'} · {formatDateTime(lead.createdAt)}
                                     </p>
                                 </div>
                                 <span className="shrink-0 rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand-dark">

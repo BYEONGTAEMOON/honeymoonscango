@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 
-import type { Lead } from '@/lib/db';
+import type { Lead } from '@/generated/prisma/client';
+import { formatDateTime } from '@/lib/format';
 
 const STATUS_OPTIONS = ['신규', '연락중', '예약완료', '취소'];
 
@@ -72,7 +73,7 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                                     <span className="ml-1 font-normal text-gray-400">{lead.phone ?? '-'}</span>
                                 </p>
                                 <p className="mt-1 text-xs text-gray-400">
-                                    {new Date(lead.created_at).toLocaleString('ko-KR')}
+                                    {formatDateTime(lead.createdAt)}
                                 </p>
                             </div>
 
@@ -102,7 +103,7 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                             </div>
                             <div className="col-span-2 sm:col-span-1">
                                 <p className="text-xs text-gray-400">선택 리조트</p>
-                                <p className="mt-0.5 font-medium text-gray-900">{lead.selected_resorts ?? '-'}</p>
+                                <p className="mt-0.5 font-medium text-gray-900">{lead.selectedResorts ?? '-'}</p>
                             </div>
                         </div>
 

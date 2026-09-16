@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-guard';
-import { ensureChatbotConfigSchema, getSql } from '@/lib/db';
 import { DEFAULT_CHATBOT_SCENARIO, mergeScenario, type ChatbotScenario } from '@/lib/chatbot-scenario';
+import { getPrisma } from '@/lib/prisma';
 
 export async function GET() {
     if (!(await requireAdminSession())) {
@@ -10,10 +10,9 @@ export async function GET() {
     }
 
     try {
-        await ensureChatbotConfigSchema();
-        const sql = getSql();
-        const rows = (await sql`SELECT data FROM chatbot_config WHERE id = 1`) as { data: unknown }[];
-        const scenario = rows.length > 0 ? mergeScenario(rows[0].data as never) : DEFAULT_CHATBOT_SCENARIO;
+        const prisma = getPrisma();
+        const row = await prisma.chatbotConfig.findUnique({ where: { id: 1 } });
+        const scenario = row ? mergeScenario(row.data as never) : DEFAULT_CHATBOT_SCENARIO;
         return NextResponse.json({ scenario });
     } catch (error) {
         return NextResponse.json(
@@ -38,13 +37,12 @@ export async function PUT(request: Request) {
     const scenario = mergeScenario(body);
 
     try {
-        await ensureChatbotConfigSchema();
-        const sql = getSql();
-        await sql`
-            INSERT INTO chatbot_config (id, data, updated_at)
-            VALUES (1, ${JSON.stringify(scenario)}::jsonb, now())
-            ON CONFLICT (id) DO UPDATE SET data = ${JSON.stringify(scenario)}::jsonb, updated_at = now()
-        `;
+        const prisma = getPrisma();
+        await prisma.chatbotConfig.upsert({
+            where: { id: 1 },
+            create: { id: 1, data: scenario },
+            update: { data: scenario },
+        });
         return NextResponse.json({ ok: true, scenario });
     } catch (error) {
         console.error('Failed to save chatbot config', error);

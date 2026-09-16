@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { ensureSchema, getSql } from '@/lib/db';
+import { getPrisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
     let body: {
@@ -26,14 +26,18 @@ export async function POST(request: Request) {
     }
 
     try {
-        await ensureSchema();
-        const sql = getSql();
-        await sql`
-            INSERT INTO leads (month, destination, budget, region, name, phone, selected_resorts)
-            VALUES (${month ?? null}, ${destination ?? null}, ${budget ?? null}, ${region ?? null}, ${name}, ${phone}, ${
-                selectedResorts && selectedResorts.length > 0 ? selectedResorts.join(', ') : null
-            })
-        `;
+        const prisma = getPrisma();
+        await prisma.lead.create({
+            data: {
+                month: month ?? null,
+                destination: destination ?? null,
+                budget: budget ?? null,
+                region: region ?? null,
+                name,
+                phone,
+                selectedResorts: selectedResorts && selectedResorts.length > 0 ? selectedResorts.join(', ') : null,
+            },
+        });
         return NextResponse.json({ ok: true });
     } catch (error) {
         console.error('Failed to save lead', error);

@@ -1,5 +1,5 @@
 import { DEFAULT_CHATBOT_SCENARIO, mergeScenario } from '@/lib/chatbot-scenario';
-import { ensureChatbotConfigSchema, getSql } from '@/lib/db';
+import { getPrisma } from '@/lib/prisma';
 
 import { ChatbotConfigForm } from './chatbot-config-form';
 
@@ -7,11 +7,10 @@ export const dynamic = 'force-dynamic';
 
 async function loadScenario() {
     try {
-        await ensureChatbotConfigSchema();
-        const sql = getSql();
-        const rows = (await sql`SELECT data FROM chatbot_config WHERE id = 1`) as { data: unknown }[];
+        const prisma = getPrisma();
+        const row = await prisma.chatbotConfig.findUnique({ where: { id: 1 } });
         return {
-            scenario: rows.length > 0 ? mergeScenario(rows[0].data as never) : DEFAULT_CHATBOT_SCENARIO,
+            scenario: row ? mergeScenario(row.data as never) : DEFAULT_CHATBOT_SCENARIO,
             error: null as string | null,
         };
     } catch (error) {

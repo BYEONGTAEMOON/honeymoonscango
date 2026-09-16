@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
 
-import { ensureChatbotConfigSchema, getSql } from '@/lib/db';
 import { DEFAULT_CHATBOT_SCENARIO, mergeScenario } from '@/lib/chatbot-scenario';
+import { getPrisma } from '@/lib/prisma';
 
 export async function GET() {
     try {
-        await ensureChatbotConfigSchema();
-        const sql = getSql();
-        const rows = (await sql`SELECT data FROM chatbot_config WHERE id = 1`) as { data: unknown }[];
-        const scenario = rows.length > 0 ? mergeScenario(rows[0].data as never) : DEFAULT_CHATBOT_SCENARIO;
+        const prisma = getPrisma();
+        const row = await prisma.chatbotConfig.findUnique({ where: { id: 1 } });
+        const scenario = row ? mergeScenario(row.data as never) : DEFAULT_CHATBOT_SCENARIO;
         return NextResponse.json({ scenario });
     } catch {
         // No DB configured yet, or a transient error — fall back to defaults so the

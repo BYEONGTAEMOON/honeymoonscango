@@ -1,4 +1,5 @@
-import { ensureSchema, getSql, type Lead } from '@/lib/db';
+import type { Lead } from '@/generated/prisma/client';
+import { getPrisma } from '@/lib/prisma';
 
 import { LeadsTable } from './leads-table';
 
@@ -6,9 +7,8 @@ export const dynamic = 'force-dynamic';
 
 async function loadLeads(): Promise<{ leads: Lead[]; error: string | null }> {
     try {
-        await ensureSchema();
-        const sql = getSql();
-        const leads = (await sql`SELECT * FROM leads ORDER BY created_at DESC`) as Lead[];
+        const prisma = getPrisma();
+        const leads = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
         return { leads, error: null };
     } catch (error) {
         return { leads: [], error: error instanceof Error ? error.message : '데이터베이스에 연결할 수 없습니다.' };

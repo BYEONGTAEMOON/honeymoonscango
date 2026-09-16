@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-guard';
-import { ensureAdminAccountSchema, getSql, type AdminAccount } from '@/lib/db';
 import { hashPassword, verifyPassword } from '@/lib/password';
+import { getPrisma } from '@/lib/prisma';
 
 export async function GET() {
     if (!(await requireAdminSession())) {
@@ -10,10 +10,9 @@ export async function GET() {
     }
 
     try {
-        await ensureAdminAccountSchema();
-        const sql = getSql();
-        const rows = (await sql`SELECT * FROM admin_account WHERE id = 1`) as AdminAccount[];
-        const username = rows[0]?.username ?? process.env.ADMIN_USERNAME ?? '';
+        const prisma = getPrisma();
+        const account = await prisma.adminAccount.findUnique({ where: { id: 1 } });
+        const username = account?.username ?? process.env.ADMIN_USERNAME ?? '';
         return NextResponse.json({ username });
     } catch {
         return NextResponse.json({ username: process.env.ADMIN_USERNAME ?? '' });
@@ -41,13 +40,11 @@ export async function PUT(request: Request) {
     }
 
     try {
-        await ensureAdminAccountSchema();
-        const sql = getSql();
-        const rows = (await sql`SELECT * FROM admin_account WHERE id = 1`) as AdminAccount[];
-        const current = rows[0] ?? null;
+        const prisma = getPrisma();
+        const current = await prisma.adminAccount.findUnique({ where: { id: 1 } });
 
         const currentValid = current
-            ? verifyPassword(currentPassword, current.password_hash)
+            ? verifyPassword(currentPassword, current.passwordHash)
             : currentPassword === process.env.ADMIN_PASSWORD;
 
         if (!currentValid) {
@@ -55,11 +52,11 @@ export async function PUT(request: Request) {
         }
 
         const passwordHash = hashPassword(newPassword);
-        await sql`
-            INSERT INTO admin_account (id, username, password_hash, updated_at)
-            VALUES (1, ${newUsername}, ${passwordHash}, now())
-            ON CONFLICT (id) DO UPDATE SET username = ${newUsername}, password_hash = ${passwordHash}, updated_at = now()
-        `;
+        await prisma.adminAccount.upsert({
+            where: { id: 1 },
+            create: { id: 1, username: newUsername, passwordHash },
+            update: { username: newUsername, passwordHash },
+        });
 
         return NextResponse.json({ ok: true });
     } catch (error) {

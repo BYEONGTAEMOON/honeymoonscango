@@ -1,4 +1,4 @@
-import { ensureAdminAccountSchema, getSql, type AdminAccount } from '@/lib/db';
+import { getPrisma } from '@/lib/prisma';
 
 import { AccountForm } from './account-form';
 
@@ -6,10 +6,9 @@ export const dynamic = 'force-dynamic';
 
 async function loadUsername(): Promise<string> {
     try {
-        await ensureAdminAccountSchema();
-        const sql = getSql();
-        const rows = (await sql`SELECT * FROM admin_account WHERE id = 1`) as AdminAccount[];
-        return rows[0]?.username ?? process.env.ADMIN_USERNAME ?? '';
+        const prisma = getPrisma();
+        const account = await prisma.adminAccount.findUnique({ where: { id: 1 } });
+        return account?.username ?? process.env.ADMIN_USERNAME ?? '';
     } catch {
         return process.env.ADMIN_USERNAME ?? '';
     }

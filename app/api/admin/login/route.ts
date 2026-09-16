@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 
 import { ADMIN_SESSION_COOKIE, createSessionToken } from '@/lib/auth';
-import { ensureAdminAccountSchema, getSql, type AdminAccount } from '@/lib/db';
 import { verifyPassword } from '@/lib/password';
+import { getPrisma } from '@/lib/prisma';
+import type { AdminAccount } from '@/generated/prisma/client';
 
 export async function POST(request: Request) {
     let body: { username?: string; password?: string };
@@ -29,10 +30,8 @@ export async function POST(request: Request) {
     // has changed anything.
     let dbAccount: AdminAccount | null = null;
     try {
-        await ensureAdminAccountSchema();
-        const sql = getSql();
-        const rows = (await sql`SELECT * FROM admin_account WHERE id = 1`) as AdminAccount[];
-        dbAccount = rows[0] ?? null;
+        const prisma = getPrisma();
+        dbAccount = await prisma.adminAccount.findUnique({ where: { id: 1 } });
     } catch {
         dbAccount = null;
     }
@@ -45,7 +44,7 @@ export async function POST(request: Request) {
         // wrong username doesn't skip the scrypt hash and make the response
         // measurably faster — that timing gap could otherwise be used to
         // enumerate the valid admin username.
-        const passwordMatches = verifyPassword(password, dbAccount.password_hash);
+        const passwordMatches = verifyPassword(password, dbAccount.passwordHash);
         const usernameMatches = username === dbAccount.username;
         authenticated = usernameMatches && passwordMatches;
         resolvedUsername = dbAccount.username;

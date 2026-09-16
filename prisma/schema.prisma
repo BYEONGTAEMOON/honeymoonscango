@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Lead {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  month           String?
+  destination     String?
+  budget          String?
+  region          String?
+  name            String?
+  phone           String?
+  selectedResorts String?  @map("selected_resorts")
+  status          String   @default("신규")
+  memo            String?
+
+  @@map("leads")
+}
+
+model ChatbotConfig {
+  id        Int      @id @default(1)
+  data      Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("chatbot_config")
+}
+
+model AdminAccount {
+  id           Int      @id @default(1)
+  username     String
+  passwordHash String   @map("password_hash")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("admin_account")
+}

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-guard';
-import { ensureSchema, getSql } from '@/lib/db';
+import { getPrisma } from '@/lib/prisma';
 
 const ALLOWED_STATUSES = ['신규', '연락중', '예약완료', '취소'];
 
@@ -32,17 +32,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     try {
-        await ensureSchema();
-        const sql = getSql();
-
-        if (body.status !== undefined && body.memo !== undefined) {
-            await sql`UPDATE leads SET status = ${body.status}, memo = ${body.memo}, updated_at = now() WHERE id = ${leadId}`;
-        } else if (body.status !== undefined) {
-            await sql`UPDATE leads SET status = ${body.status}, updated_at = now() WHERE id = ${leadId}`;
-        } else if (body.memo !== undefined) {
-            await sql`UPDATE leads SET memo = ${body.memo}, updated_at = now() WHERE id = ${leadId}`;
-        }
-
+        const prisma = getPrisma();
+        await prisma.lead.update({
+            where: { id: leadId },
+            data: {
+                ...(body.status !== undefined && { status: body.status }),
+                ...(body.memo !== undefined && { memo: body.memo }),
+            },
+        });
         return NextResponse.json({ ok: true });
     } catch (error) {
         console.error('Failed to update lead', error);
@@ -62,9 +59,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     }
 
     try {
-        await ensureSchema();
-        const sql = getSql();
-        await sql`DELETE FROM leads WHERE id = ${leadId}`;
+        const prisma = getPrisma();
+        await prisma.lead.delete({ where: { id: leadId } });
         return NextResponse.json({ ok: true });
     } catch (error) {
         console.error('Failed to delete lead', error);
