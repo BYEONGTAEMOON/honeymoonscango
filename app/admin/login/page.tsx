@@ -3,6 +3,14 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 
+// Only allow same-origin relative paths as a post-login redirect target —
+// otherwise an attacker-crafted ?next= could send the admin off-site right
+// after they authenticate.
+function sanitizeNextPath(raw: string | null): string {
+    if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/admin';
+    return raw;
+}
+
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -30,7 +38,7 @@ function LoginForm() {
                 return;
             }
 
-            const next = searchParams.get('next') ?? '/admin';
+            const next = sanitizeNextPath(searchParams.get('next'));
             router.replace(next);
             router.refresh();
         } catch {

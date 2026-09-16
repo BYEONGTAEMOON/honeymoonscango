@@ -196,6 +196,15 @@ export function ChatIcon({ className }: IconProps) {
     );
 }
 
+export function UserIcon({ className }: IconProps) {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" className={className}>
+            <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M4.5 20c1.2-3.8 4.3-6 7.5-6s6.3 2.2 7.5 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+    );
+}
+
 export function ArrowRightIcon({ className }: IconProps) {
     return (
         <svg viewBox="0 0 24 24" fill="none" className={className}>

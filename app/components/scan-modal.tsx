@@ -311,6 +311,28 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
         leadDataRef.current.budget = value;
 
         const destination = prefillDestination ?? findAnsweredDestination(entries);
+        const hasResortCandidates = (RESORTS_BY_DESTINATION[destination] ?? []).length > 0;
+
+        // The destination list is admin-editable, but the resort catalog isn't —
+        // if an admin adds/renames a destination with no matching resort data,
+        // skip the (otherwise empty and dead-end) picker and go straight to
+        // collecting contact info instead of showing a picker with 0 candidates.
+        if (!hasResortCandidates) {
+            appendBotSequence(
+                [
+                    {
+                        id: nextId(),
+                        type: 'bot',
+                        text: `${destination}은(는) 전담 컨설턴트가 직접 맞춤 리조트를 찾아드리는 지역이에요. ${scenario.afterResortMessage}`,
+                    },
+                    { id: nextId(), type: 'checklist' },
+                    { id: nextId(), type: 'bot', text: scenario.phoneQuestion },
+                    { id: nextId(), type: 'bot', text: scenario.privacyNotice },
+                ],
+                'contact',
+            );
+            return;
+        }
 
         appendBotSequence(
             [

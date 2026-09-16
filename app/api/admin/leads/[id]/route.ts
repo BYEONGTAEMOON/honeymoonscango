@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 
+import { requireAdminSession } from '@/lib/admin-guard';
 import { ensureSchema, getSql } from '@/lib/db';
 
 const ALLOWED_STATUSES = ['신규', '연락중', '예약완료', '취소'];
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    if (!(await requireAdminSession())) {
+        return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    }
+
     const { id } = await params;
     const leadId = Number(id);
     if (!Number.isInteger(leadId)) {
@@ -20,6 +25,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (body.status !== undefined && !ALLOWED_STATUSES.includes(body.status)) {
         return NextResponse.json({ error: '허용되지 않는 상태값입니다.' }, { status: 400 });
+    }
+
+    if (body.status === undefined && body.memo === undefined) {
+        return NextResponse.json({ error: '변경할 내용이 없습니다.' }, { status: 400 });
     }
 
     try {
@@ -42,6 +51,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+    if (!(await requireAdminSession())) {
+        return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    }
+
     const { id } = await params;
     const leadId = Number(id);
     if (!Number.isInteger(leadId)) {

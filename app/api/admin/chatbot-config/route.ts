@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 
+import { requireAdminSession } from '@/lib/admin-guard';
 import { ensureChatbotConfigSchema, getSql } from '@/lib/db';
 import { DEFAULT_CHATBOT_SCENARIO, mergeScenario, type ChatbotScenario } from '@/lib/chatbot-scenario';
 
 export async function GET() {
+    if (!(await requireAdminSession())) {
+        return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    }
+
     try {
         await ensureChatbotConfigSchema();
         const sql = getSql();
@@ -19,6 +24,10 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+    if (!(await requireAdminSession())) {
+        return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    }
+
     let body: Partial<ChatbotScenario>;
     try {
         body = await request.json();
