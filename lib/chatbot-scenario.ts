@@ -1,6 +1,7 @@
 export type TextItem = { title: string; desc: string };
 export type TagItem = { title: string; tag: string };
 export type DestinationResort = { slug: string; name: string; description: string; tags: string[]; image: string };
+export type PopularResort = { slug: string; country: string; name: string; description: string; tags: string[]; image: string };
 
 export type ChatbotScenario = {
     introMessage: string;
@@ -21,6 +22,7 @@ export type ChatbotScenario = {
     completionSubtitle: string;
     completionClosing: string;
     resortsByDestination: Record<string, DestinationResort[]>;
+    popularResorts: PopularResort[];
 };
 
 function seedImage(slug: string): string {
@@ -344,6 +346,57 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
     ]),
 };
 
+const DEFAULT_POPULAR_RESORTS: PopularResort[] = [
+    {
+        slug: 'villa-amorita',
+        country: '태국',
+        name: '빌라 아모리타',
+        description: '울창한 정글 뷰와 프라이빗 풀을 품은 코사무이의 조용한 은신처',
+        tags: ['프라이빗풀', '정글뷰', '태국감성'],
+        image: seedImage('villa-amorita'),
+    },
+    {
+        slug: 'grand-gaube',
+        country: '모리셔스',
+        name: '그랑고브',
+        description: '세계적인 디자이너 켈리 호펜의 세련된 레트로 시크 감성과 두 개의 프라이빗 비치를 품은 모리셔스 북부의 감성 럭셔리 리조트',
+        tags: ['모리셔스감성', '켈리호펜', '레트로시크'],
+        image: seedImage('grand-gaube'),
+    },
+    {
+        slug: 'the-mulia',
+        country: '발리',
+        name: '더 물리아',
+        description: '압도적인 스케일의 시그니처 오아시스 풀과 24시간 전담 버틀러 서비스를 갖춘 6성급 올 스위트 오션프런트 왕국',
+        tags: ['6성급 럭셔리', '럭셔리', '오아시스풀'],
+        image: seedImage('the-mulia'),
+    },
+    {
+        slug: 'pavilion-samui',
+        country: '태국',
+        name: '파빌리온 사무이',
+        description: '라마이 비치의 황금빛 해변을 앞마당처럼 품은 태국 전통미와 프라이빗 풀빌라의 낭만적인 은신처',
+        tags: ['라마이비치', '프라이빗', '태국감성'],
+        image: seedImage('pavilion-samui'),
+    },
+    {
+        slug: 'aira-phuket',
+        country: '태국',
+        name: '아이라 푸켓',
+        description: '울창한 열대우림 속 목조 감성 가득한 프라이빗 빌라를 품은 푸켓의 숨은 낙원',
+        tags: ['푸켓감성', '프라이빗빌라', '열대우드'],
+        image: seedImage('aira-phuket'),
+    },
+    {
+        slug: 'four-seasons-hawaii',
+        country: '하와이',
+        name: '포시즌스 하와이',
+        description: '와이키키 해변을 마주한 오션뷰 스위트와 프리미엄 다이닝을 갖춘 하와이 대표 허니문 리조트',
+        tags: ['하와이감성', '오션뷰', '프리미엄'],
+        image: seedImage('four-seasons-hawaii'),
+    },
+];
+
 export const DEFAULT_CHATBOT_SCENARIO: ChatbotScenario = {
     introMessage:
         '안녕하세요, 허니문 스캔GO입니다. 😊\n출발월·목적지·예산만 알려주시면 조건에 딱 맞는 리조트와 예상 견적, 항공 잔여좌석까지 한 번에 비교해드려요.\n\n먼저, 출발은 몇 월쯤으로 생각하고 계세요?\n날짜가 아직 미정이어도 괜찮아요. 출발월만 알아도 가능한 항공 스케줄과 받으실 수 있는 혜택을 먼저 확인해드릴게요.',
@@ -379,6 +432,7 @@ export const DEFAULT_CHATBOT_SCENARIO: ChatbotScenario = {
     completionClosing:
         '상담·예약 시 받는 혜택은 자료 안내와 함께 허니문 전담 컨시어지가 카카오톡 안내 시 자세히 알려드릴게요. 🙌\n신청 기준 1일 이내에 카카오톡으로 결과 자료를 공유드리겠습니다.\n\n행복한 신혼여행 준비의 시작이 되시길 바랍니다. 감사합니다. 💍',
     resortsByDestination: DEFAULT_RESORTS_BY_DESTINATION,
+    popularResorts: DEFAULT_POPULAR_RESORTS,
 };
 
 export function applyTemplate(template: string, vars: Record<string, string>): string {

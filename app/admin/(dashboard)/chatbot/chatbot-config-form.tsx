@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { DEFAULT_CHATBOT_SCENARIO, type ChatbotScenario, type TagItem, type TextItem } from '@/lib/chatbot-scenario';
 
+import { PopularResortsEditor } from './popular-resorts-editor';
 import { ResortsByDestinationEditor } from './resorts-by-destination-editor';
 
 function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
@@ -276,6 +277,13 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
                 description="여기서 수정한 리조트 이미지·설명·태그는 메인 홈페이지의 여행지 섹션과 챗봇의 리조트 후보 화면에 동일하게 반영돼요."
             >
                 <ResortsByDestinationEditor value={scenario.resortsByDestination} onChange={(v) => set('resortsByDestination', v)} />
+            </SectionCard>
+
+            <SectionCard
+                title="8. 인기 숙소 마퀴"
+                description="홈페이지 &ldquo;허니문 인기 숙소 둘러보기&rdquo; 섹션에서 자동으로 흘러가는 숙소 카드 목록이에요."
+            >
+                <PopularResortsEditor value={scenario.popularResorts} onChange={(v) => set('popularResorts', v)} />
             </SectionCard>
 
             <div className="fixed inset-x-0 bottom-0 border-t border-gray-100 bg-white/95 px-8 py-4 backdrop-blur md:left-60">

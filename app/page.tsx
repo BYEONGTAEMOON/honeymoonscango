@@ -28,7 +28,7 @@ export default async function Home() {
                 <HeroSection />
                 <TrustSection />
                 <DealsSection />
-                <ResortsSection />
+                <ResortsSection resorts={scenario.popularResorts} />
                 <DestinationSection id="bali" destination="발리" resorts={resortsFor('발리')} />
                 <DestinationSection destination="태국" resorts={resortsFor('태국')} />
                 <DestinationSection destination="유럽" tagline="호텔. 리조트." resorts={resortsFor('유럽')} />
