@@ -5,139 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { applyTemplate, type ChatbotScenario } from '@/lib/chatbot-scenario';
 
-import {
-    baliResorts,
-    cancunResorts,
-    europeResorts,
-    hawaiiDestinationResorts,
-    maldivesResorts,
-    mauritiusResorts,
-    thailandResorts,
-} from './destination-data';
-import type { DestinationResort } from './destination-section';
 import { CheckIcon, CloseIcon, GiftIcon, SearchIcon, SendIcon } from './icons';
-
-const australiaResorts: DestinationResort[] = [
-    {
-        slug: 'sydney-harbour-suite',
-        name: '시드니 하버 뷰 스위트',
-        description: '오페라하우스와 하버브리지를 한눈에 담은 시드니 대표 오션뷰 스카이라인 스위트',
-        tags: ['시드니하버뷰', '오페라하우스뷰', '스카이라인스위트'],
-    },
-    {
-        slug: 'gold-coast-q1-resort',
-        name: '골드코스트 큐원 리조트',
-        description: '서퍼스 파라다이스 해변을 마주한 인피니티 풀과 오션뷰 스위트를 갖춘 리조트',
-        tags: ['골드코스트', '서퍼스파라다이스', '인피니티풀'],
-    },
-    {
-        slug: 'cairns-reef-suite',
-        name: '케언즈 리프 스위트',
-        description: '그레이트 배리어 리프 투어 거점, 열대 정원 속 프라이빗 풀빌라',
-        tags: ['케언즈', '그레이트배리어리프', '프라이빗풀빌라'],
-    },
-    {
-        slug: 'melbourne-boutique-hotel',
-        name: '멜버른 시티 부티크 호텔',
-        description: '야라강변 감성 거리와 카페 문화를 도보로 즐기는 멜버른 중심가 부티크 호텔',
-        tags: ['멜버른시티', '야라강변', '부티크호텔'],
-    },
-];
-
-const dubaiResorts: DestinationResort[] = [
-    {
-        slug: 'burj-al-arab',
-        name: '버즈 알 아랍 주메이라',
-        description: '세계적인 7성급 럭셔리, 아라비아만을 마주한 독보적인 스카이라인 스위트',
-        tags: ['7성급럭셔리', '아라비아만뷰', '두바이랜드마크'],
-    },
-    {
-        slug: 'atlantis-the-palm',
-        name: '아틀란티스 더 팜',
-        description: '팜 주메이라의 상징적 수중 스위트와 아쿠아벤처 워터파크를 갖춘 초대형 리조트',
-        tags: ['팜주메이라', '언더워터스위트', '워터파크'],
-    },
-    {
-        slug: 'madinat-jumeirah',
-        name: '매디낫 주메이라',
-        description: '전통 아랍 건축미와 수로를 품은 로맨틱 리조트 빌리지',
-        tags: ['아랍전통건축', '수로뷰빌리지', '로맨틱리조트'],
-    },
-    {
-        slug: 'downtown-dubai-boutique',
-        name: '다운타운 두바이 부티크 호텔',
-        description: '부르즈 할리파 뷰와 분수쇼를 즐기는 도심 럭셔리 부티크 호텔',
-        tags: ['부르즈할리파뷰', '분수쇼뷰', '다운타운두바이'],
-    },
-];
-
-const guamResorts: DestinationResort[] = [
-    {
-        slug: 'dusit-thani-guam',
-        name: '두짓타니 괌 리조트',
-        description: '타무닝 해변의 프라이빗 라군과 성인 전용 인피니티 풀을 갖춘 럭셔리 리조트',
-        tags: ['타무닝비치', '성인전용풀', '프라이빗라군'],
-    },
-    {
-        slug: 'holiday-resort-guam',
-        name: '홀리데이 리조트 괌',
-        description: '투몬 비치 중심가에서 쇼핑과 해변을 동시에 누리는 가성비 리조트',
-        tags: ['투몬비치중심', '가성비숙소', '쇼핑접근성'],
-    },
-    {
-        slug: 'westin-resort-guam',
-        name: '웨스틴 리조트 괌',
-        description: '투몬 베이 프라이빗 비치와 오션뷰 스위트를 갖춘 대표 허니문 리조트',
-        tags: ['투몬베이', '오션뷰스위트', '허니문대표리조트'],
-    },
-    {
-        slug: 'royal-orchid-guam',
-        name: '로얄 오키드 괌',
-        description: '투몬 비치 프런트에 위치한 아늑하고 합리적인 부티크 리조트',
-        tags: ['투몬비치프런트', '가성비부티크', '아늑한객실'],
-    },
-];
-
-const cebuResorts: DestinationResort[] = [
-    {
-        slug: 'shangri-la-mactan-cebu',
-        name: '샹그릴라 막탄 세부',
-        description: '막탄섬 프라이빗 비치와 라군풀을 갖춘 세부 대표 럭셔리 리조트',
-        tags: ['막탄프라이빗비치', '라군풀', '세부대표리조트'],
-    },
-    {
-        slug: 'crimson-resort-mactan',
-        name: '크림슨 리조트 막탄',
-        description: '인피니티 풀과 오션뷰 스위트를 갖춘 모던 럭셔리 비치 리조트',
-        tags: ['모던럭셔리', '오션뷰스위트', '인피니티풀'],
-    },
-    {
-        slug: 'plantation-bay-resort',
-        name: '플랜테이션 베이 리조트',
-        description: '인공 라군과 워터파크를 품은 독특한 콘셉트의 대형 리조트',
-        tags: ['인공라군', '워터파크', '패밀리허니문'],
-    },
-    {
-        slug: 'movenpick-mactan-cebu',
-        name: '모벤픽 호텔 막탄 세부',
-        description: '화이트샌드 비치와 다이빙 포인트에 인접한 스위스 감성 럭셔리 호텔',
-        tags: ['화이트샌드비치', '다이빙포인트', '스위스감성'],
-    },
-];
-
-const RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
-    발리: baliResorts,
-    태국: thailandResorts,
-    유럽: europeResorts,
-    몰디브: maldivesResorts,
-    하와이: hawaiiDestinationResorts,
-    칸쿤: cancunResorts,
-    모리셔스: mauritiusResorts,
-    호주: australiaResorts,
-    두바이: dubaiResorts,
-    괌: guamResorts,
-    세부: cebuResorts,
-};
 
 type Step = 'month' | 'destination' | 'budget' | 'resorts' | 'contact' | 'region' | 'name' | 'done';
 
@@ -311,12 +179,13 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
         leadDataRef.current.budget = value;
 
         const destination = prefillDestination ?? findAnsweredDestination(entries);
-        const hasResortCandidates = (RESORTS_BY_DESTINATION[destination] ?? []).length > 0;
+        const hasResortCandidates = (scenario.resortsByDestination[destination] ?? []).length > 0;
 
-        // The destination list is admin-editable, but the resort catalog isn't —
-        // if an admin adds/renames a destination with no matching resort data,
-        // skip the (otherwise empty and dead-end) picker and go straight to
-        // collecting contact info instead of showing a picker with 0 candidates.
+        // Both the destination list and the resort catalog are admin-editable
+        // independently — if an admin adds/renames a destination with no
+        // matching resort data yet, skip the (otherwise empty and dead-end)
+        // picker and go straight to collecting contact info instead of showing
+        // a picker with 0 candidates.
         if (!hasResortCandidates) {
             appendBotSequence(
                 [
@@ -531,7 +400,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                         }
 
                         if (entry.type === 'resort-picker') {
-                            const resorts = (RESORTS_BY_DESTINATION[entry.destination] ?? []).slice(0, 4);
+                            const resorts = (scenario.resortsByDestination[entry.destination] ?? []).slice(0, 4);
                             return (
                                 <div key={entry.id} className={isLast ? '' : 'pointer-events-none opacity-40'}>
                                     <div className="mb-2 flex items-center justify-between text-xs font-semibold text-white/60">
@@ -555,7 +424,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                                 >
                                                     <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
                                                         <Image
-                                                            src={`https://picsum.photos/seed/${resort.slug}/200/200`}
+                                                            src={resort.image}
                                                             alt={resort.name}
                                                             fill
                                                             sizes="56px"

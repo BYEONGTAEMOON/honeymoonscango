@@ -1,28 +1,11 @@
-import { DEFAULT_CHATBOT_SCENARIO, mergeScenario } from '@/lib/chatbot-scenario';
-import { getPrisma } from '@/lib/prisma';
+import { getScenarioWithStatus } from '@/lib/scenario-store';
 
 import { ChatbotConfigForm } from './chatbot-config-form';
 
 export const dynamic = 'force-dynamic';
 
-async function loadScenario() {
-    try {
-        const prisma = getPrisma();
-        const row = await prisma.chatbotConfig.findUnique({ where: { id: 1 } });
-        return {
-            scenario: row ? mergeScenario(row.data as never) : DEFAULT_CHATBOT_SCENARIO,
-            error: null as string | null,
-        };
-    } catch (error) {
-        return {
-            scenario: DEFAULT_CHATBOT_SCENARIO,
-            error: error instanceof Error ? error.message : '데이터베이스에 연결할 수 없습니다.',
-        };
-    }
-}
-
 export default async function AdminChatbotPage() {
-    const { scenario, error } = await loadScenario();
+    const { scenario, error } = await getScenarioWithStatus();
 
     return (
         <div>

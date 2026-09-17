@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { DEFAULT_CHATBOT_SCENARIO, type ChatbotScenario, type TagItem, type TextItem } from '@/lib/chatbot-scenario';
 
+import { ResortsByDestinationEditor } from './resorts-by-destination-editor';
+
 function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
     return (
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -267,6 +269,13 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
                 <Field label="완료 안내 문구" value={scenario.completionSubtitle} onChange={(v) => set('completionSubtitle', v)} rows={2} />
                 <TagItemListEditor label="추가 혜택 목록" items={scenario.extraBenefits} onChange={(v) => set('extraBenefits', v)} />
                 <Field label="마무리 인사" value={scenario.completionClosing} onChange={(v) => set('completionClosing', v)} rows={5} />
+            </SectionCard>
+
+            <SectionCard
+                title="7. 목적지별 리조트"
+                description="여기서 수정한 리조트 이미지·설명·태그는 메인 홈페이지의 여행지 섹션과 챗봇의 리조트 후보 화면에 동일하게 반영돼요."
+            >
+                <ResortsByDestinationEditor value={scenario.resortsByDestination} onChange={(v) => set('resortsByDestination', v)} />
             </SectionCard>
 
             <div className="fixed inset-x-0 bottom-0 border-t border-gray-100 bg-white/95 px-8 py-4 backdrop-blur md:left-60">

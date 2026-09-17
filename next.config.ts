@@ -4,7 +4,9 @@ const nextConfig: NextConfig = {
     /* config options here */
     devIndicators: false,
     images: {
-        remotePatterns: [new URL('https://picsum.photos/**')],
+        // Admin-entered resort photo URLs can point at any HTTPS host, not just
+        // picsum.photos — this is a single-admin CMS, so the tradeoff is fine.
+        remotePatterns: [{ protocol: 'https', hostname: '**' }],
     },
 };
 

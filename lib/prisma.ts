@@ -20,11 +20,11 @@ export function getPrisma(): PrismaClient {
     const adapter = new PrismaPg({ connectionString });
     const client = new PrismaClient({ adapter });
 
-    // Reuse the same client across hot-reloads in dev so we don't open a new
-    // connection pool on every file save.
-    if (process.env.NODE_ENV !== 'production') {
-        globalForPrisma.prisma = client;
-    }
+    // Always cache on globalThis: in dev this survives Next's hot-reloads, and
+    // in production it lets a warm serverless instance reuse the same
+    // connection pool across requests instead of opening a fresh one (and
+    // never closing the old one) on every single page navigation.
+    globalForPrisma.prisma = client;
 
     return client;
 }

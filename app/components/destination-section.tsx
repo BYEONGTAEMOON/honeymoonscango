@@ -1,14 +1,11 @@
 import Image from 'next/image';
 
+import type { DestinationResort } from '@/lib/chatbot-scenario';
+
 import { ArrowRightIcon, MapPinIcon } from './icons';
 import { ScanGoButton } from './scan-go-button';
 
-export type DestinationResort = {
-    slug: string;
-    name: string;
-    description: string;
-    tags: string[];
-};
+export type { DestinationResort };
 
 type DestinationSectionProps = {
     id?: string;
@@ -39,7 +36,7 @@ export function DestinationSection({ id, destination, tagline = '오션뷰. 풀�
                     <div key={resort.slug} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
                         <div className="relative aspect-[9/4]">
                             <Image
-                                src={`https://picsum.photos/seed/${resort.slug}/800/360`}
+                                src={resort.image}
                                 alt={resort.name}
                                 fill
                                 sizes="(min-width: 768px) 500px, 100vw"
