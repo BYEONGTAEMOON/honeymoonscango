@@ -5,7 +5,8 @@ export type PopularResort = { slug: string; country: string; name: string; descr
 
 export type ChatbotScenario = {
     introMessage: string;
-    monthCount: number;
+    monthRangeStart: string;
+    monthRangeEnd: string;
     destinations: string[];
     destinationQuestion: string;
     budgets: string[];
@@ -400,7 +401,8 @@ const DEFAULT_POPULAR_RESORTS: PopularResort[] = [
 export const DEFAULT_CHATBOT_SCENARIO: ChatbotScenario = {
     introMessage:
         '안녕하세요, 허니문 스캔GO입니다. 😊\n출발월·목적지·예산만 알려주시면 조건에 딱 맞는 리조트와 예상 견적, 항공 잔여좌석까지 한 번에 비교해드려요.\n\n먼저, 출발은 몇 월쯤으로 생각하고 계세요?\n날짜가 아직 미정이어도 괜찮아요. 출발월만 알아도 가능한 항공 스케줄과 받으실 수 있는 혜택을 먼저 확인해드릴게요.',
-    monthCount: 8,
+    monthRangeStart: '2027-01',
+    monthRangeEnd: '2027-12',
     destinations: ['발리', '태국', '유럽', '몰디브', '하와이', '칸쿤', '모리셔스', '호주', '두바이', '괌', '세부'],
     destinationQuestion:
         '{value} 예정으로 항공 잔여좌석과 견적 조회 도와드릴게요. ✨\n\n희망 목적지는 어느 곳으로 생각하고 계세요? 📍\n목적지마다 항공 스케줄과 리조트 견적대가 달라요.\n두 분이 원하시는 여행 스타일 기준으로 골라도 좋아요.',

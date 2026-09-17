@@ -55,12 +55,37 @@ function formatNameInput(raw: string): string {
     return raw.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣ\s]/g, '');
 }
 
-function buildUpcomingMonths(count: number): string[] {
-    const now = new Date();
+const MAX_MONTH_OPTIONS = 36; // sanity cap in case an admin sets a huge or reversed range
+
+function parseYearMonth(value: string): { year: number; month: number } | null {
+    const match = /^(\d{4})-(\d{2})$/.exec(value);
+    if (!match) return null;
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    if (month < 1 || month > 12) return null;
+    return { year, month };
+}
+
+// Honeymoon bookings are usually planned for a specific travel window (e.g. all
+// of next year), not "the next N months from today" — so admins set a fixed
+// start/end month instead of a rolling count.
+function buildMonthRange(startValue: string, endValue: string): string[] {
+    const start = parseYearMonth(startValue);
+    const end = parseYearMonth(endValue);
+    if (!start || !end) return [];
+
     const months: string[] = [];
-    for (let i = 1; i <= count; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        months.push(`${d.getFullYear()}년 ${d.getMonth() + 1}월`);
+    let year = start.year;
+    let month = start.month;
+    const endIndex = end.year * 12 + end.month;
+
+    while (year * 12 + month <= endIndex && months.length < MAX_MONTH_OPTIONS) {
+        months.push(`${year}년 ${month}월`);
+        month += 1;
+        if (month > 12) {
+            month = 1;
+            year += 1;
+        }
     }
     return months;
 }
@@ -74,7 +99,7 @@ function nextId() {
 function initialTranscript(scenario: ChatbotScenario): Entry[] {
     return [
         { id: nextId(), type: 'bot', text: scenario.introMessage },
-        { id: nextId(), type: 'options', kind: 'month', options: buildUpcomingMonths(scenario.monthCount) },
+        { id: nextId(), type: 'options', kind: 'month', options: buildMonthRange(scenario.monthRangeStart, scenario.monthRangeEnd) },
     ];
 }
 
