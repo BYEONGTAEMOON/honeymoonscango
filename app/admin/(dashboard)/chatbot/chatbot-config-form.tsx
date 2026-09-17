@@ -4,18 +4,7 @@ import { useState } from 'react';
 
 import { DEFAULT_CHATBOT_SCENARIO, type ChatbotScenario, type TagItem, type TextItem } from '@/lib/chatbot-scenario';
 
-import { PopularResortsEditor } from './popular-resorts-editor';
-import { ResortsByDestinationEditor } from './resorts-by-destination-editor';
-
-function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-    return (
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-            <p className="text-sm font-bold text-gray-900">{title}</p>
-            {description && <p className="mt-1 text-xs text-gray-400">{description}</p>}
-            <div className="mt-4 space-y-4">{children}</div>
-        </div>
-    );
-}
+import { SectionCard } from '../section-card';
 
 function Field({
     label,
@@ -229,7 +218,13 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
 
     function handleReset() {
         if (!confirm('기본값으로 초기화할까요? 저장 전까지는 사이트에 반영되지 않아요.')) return;
-        setScenario(DEFAULT_CHATBOT_SCENARIO);
+        // Keep resortsByDestination/popularResorts untouched — they're edited on
+        // the separate "메인화면 컨텐츠" page and shouldn't reset from here.
+        setScenario((prev) => ({
+            ...DEFAULT_CHATBOT_SCENARIO,
+            resortsByDestination: prev.resortsByDestination,
+            popularResorts: prev.popularResorts,
+        }));
         setMessage(null);
     }
 
@@ -271,20 +266,6 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
                 <Field label="완료 안내 문구" value={scenario.completionSubtitle} onChange={(v) => set('completionSubtitle', v)} rows={2} />
                 <TagItemListEditor label="추가 혜택 목록" items={scenario.extraBenefits} onChange={(v) => set('extraBenefits', v)} />
                 <Field label="마무리 인사" value={scenario.completionClosing} onChange={(v) => set('completionClosing', v)} rows={5} />
-            </SectionCard>
-
-            <SectionCard
-                title="7. 목적지별 리조트"
-                description="여기서 수정한 리조트 이미지·설명·태그는 메인 홈페이지의 여행지 섹션과 챗봇의 리조트 후보 화면에 동일하게 반영돼요."
-            >
-                <ResortsByDestinationEditor value={scenario.resortsByDestination} onChange={(v) => set('resortsByDestination', v)} />
-            </SectionCard>
-
-            <SectionCard
-                title="8. 인기 숙소 마퀴"
-                description="홈페이지 &ldquo;허니문 인기 숙소 둘러보기&rdquo; 섹션에서 자동으로 흘러가는 숙소 카드 목록이에요."
-            >
-                <PopularResortsEditor value={scenario.popularResorts} onChange={(v) => set('popularResorts', v)} />
             </SectionCard>
 
             <div className="fixed inset-x-0 bottom-0 border-t border-gray-100 bg-white/95 px-8 py-4 backdrop-blur md:left-60">

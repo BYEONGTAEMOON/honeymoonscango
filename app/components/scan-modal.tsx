@@ -341,10 +341,12 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
     const placeholder = PLACEHOLDER_BY_STEP[step];
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-0 md:p-6">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/70 p-0 md:items-center md:p-6">
             <div aria-hidden="true" onClick={onClose} className="absolute inset-0 h-full w-full cursor-default" />
 
-            <div className="relative flex h-full w-full flex-col overflow-hidden bg-gray-900 text-white md:h-[85vh] md:max-w-xl md:rounded-3xl">
+            {/* On mobile this behaves like a real chat widget sheet — anchored to
+                the bottom with a visible gap above, not a full-screen takeover. */}
+            <div className="relative flex h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl bg-gray-900 text-white md:h-[85vh] md:max-w-xl md:rounded-3xl">
                 <div className="flex items-center justify-between border-b border-white/10 p-4">
                     <div className="flex items-center gap-3">
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-dark">

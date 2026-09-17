@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { ChatIcon, GridIcon, ListIcon, LogoutIcon, UserIcon } from '@/app/components/icons';
+import { ChatIcon, GridIcon, ListIcon, LogoutIcon, MapPinIcon, UserIcon } from '@/app/components/icons';
 
 const NAV_ITEMS = [
     { href: '/admin', label: '대시보드', icon: GridIcon },
     { href: '/admin/leads', label: '신청 데이터', icon: ListIcon },
+    { href: '/admin/content', label: '메인화면 컨텐츠', icon: MapPinIcon },
     { href: '/admin/chatbot', label: '챗봇 시나리오', icon: ChatIcon },
     { href: '/admin/account', label: '계정 설정', icon: UserIcon },
 ];
