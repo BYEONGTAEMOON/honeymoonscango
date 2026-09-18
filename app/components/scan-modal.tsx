@@ -90,6 +90,10 @@ function buildMonthRange(startValue: string, endValue: string): string[] {
     return months;
 }
 
+// Always shown as a 5th option below the top 4 resort candidates — a catch-all
+// for "none of these, help me find something else" rather than more catalog data.
+const OTHER_RESORT_OPTION = '그 외 호텔 및 리조트';
+
 let idCounter = 0;
 function nextId() {
     idCounter += 1;
@@ -427,9 +431,8 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                         }
 
                         if (entry.type === 'resort-picker') {
-                            const allResorts = scenario.resortsByDestination[entry.destination] ?? [];
-                            const resorts = allResorts.slice(0, 4);
-                            const otherResorts = allResorts.slice(4);
+                            const resorts = (scenario.resortsByDestination[entry.destination] ?? []).slice(0, 4);
+                            const otherSelected = selectedResorts.includes(OTHER_RESORT_OPTION);
                             return (
                                 <div key={entry.id} className={isLast ? '' : 'pointer-events-none opacity-40'}>
                                     <div className="mb-2 flex items-center justify-between text-xs font-semibold text-white/60">
@@ -476,33 +479,32 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                                 </button>
                                             );
                                         })}
-                                    </div>
 
-                                    {otherResorts.length > 0 && (
-                                        <div className="mt-3">
-                                            <p className="mb-2 text-xs font-semibold text-white/50">그 외 호텔 및 리조트</p>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {otherResorts.map((resort) => {
-                                                    const selected = selectedResorts.includes(resort.name);
-                                                    return (
-                                                        <button
-                                                            key={resort.slug}
-                                                            type="button"
-                                                            onClick={() => toggleResort(resort.name)}
-                                                            className={`flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
-                                                                selected
-                                                                    ? 'border-brand bg-brand/10 text-white'
-                                                                    : 'border-white/10 bg-white/5 text-white/70 hover:border-brand hover:bg-white/10 hover:text-white'
-                                                            }`}
-                                                        >
-                                                            {selected && <CheckIcon className="h-3 w-3" />}
-                                                            {resort.name}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleResort(OTHER_RESORT_OPTION)}
+                                            className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition-all ${
+                                                otherSelected
+                                                    ? 'border-brand bg-brand/10'
+                                                    : 'border-white/10 bg-white/5 hover:border-brand hover:bg-white/10 hover:shadow-[0_0_0_1px_var(--brand),0_0_16px_-4px_var(--brand)]'
+                                            }`}
+                                        >
+                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                                                <SearchIcon className="h-5 w-5 text-white/60" />
+                                            </span>
+                                            <span className="min-w-0 flex-1">
+                                                <span className="block truncate text-sm font-bold text-white">{OTHER_RESORT_OPTION}</span>
+                                                <span className="block truncate text-xs text-white/50">신혼여행 전문가와 상의</span>
+                                            </span>
+                                            <span
+                                                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                                                    otherSelected ? 'border-brand bg-brand' : 'border-white/30'
+                                                }`}
+                                            >
+                                                {otherSelected && <CheckIcon className="h-3 w-3 text-white" />}
+                                            </span>
+                                        </button>
+                                    </div>
 
                                     <div className="mt-3 flex gap-2">
                                         <button
