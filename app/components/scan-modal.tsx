@@ -515,10 +515,10 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => proceedToContact(`${allResorts.length}곳 포함 추천으로 받을게요`)}
+                                            onClick={() => proceedToContact(`${selectedResorts.length}곳 포함 추천으로 받을게요`)}
                                             className="flex-1 cursor-pointer rounded-full bg-gradient-to-r from-brand to-brand-dark px-4 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-[0_0_16px_-2px_var(--brand)]"
                                         >
-                                            {allResorts.length}곳 포함 추천으로 받을게요
+                                            {selectedResorts.length}곳 포함 추천으로 받을게요
                                         </button>
                                     </div>
                                 </div>
