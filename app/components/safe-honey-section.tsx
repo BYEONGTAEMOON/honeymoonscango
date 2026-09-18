@@ -5,16 +5,19 @@ const cards = [
         slug: 'meritz-tower',
         stat: '총 10억 원',
         label: '공제영업보증 가입',
+        image: 'https://banhanatour.kr/images/honeymoonscango/safe_01.jpg',
     },
     {
         slug: 'sgi-seoul-guarantee',
         stat: '총 1억 원',
         label: '영업배상책임보험 가입',
+        image: 'https://banhanatour.kr/images/honeymoonscango/safe_02.jpg',
     },
     {
         slug: 'banhana-office',
         stat: '11년 연속',
         label: '정상 영업 & 무사고',
+        image: 'https://banhanatour.kr/images/honeymoonscango/safe_03.jpg',
     },
 ];
 
@@ -37,7 +40,7 @@ export function SafeHoneySection() {
                 {cards.map((card) => (
                     <div key={card.slug} className="relative aspect-[3/4] overflow-hidden rounded-2xl">
                         <Image
-                            src={`https://picsum.photos/seed/${card.slug}/500/650`}
+                            src={card.image}
                             alt={card.label}
                             fill
                             sizes="(min-width: 640px) 33vw, 100vw"
