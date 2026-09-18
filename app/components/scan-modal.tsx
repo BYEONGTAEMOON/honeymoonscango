@@ -52,7 +52,7 @@ function formatPhoneInput(raw: string): string {
 }
 
 function formatNameInput(raw: string): string {
-    return raw.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣ\s]/g, '');
+    return raw.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z\s]/g, '');
 }
 
 const MAX_MONTH_OPTIONS = 36; // sanity cap in case an admin sets a huge or reversed range
