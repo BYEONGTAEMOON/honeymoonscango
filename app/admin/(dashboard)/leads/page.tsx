@@ -5,18 +5,21 @@ import { LeadsTable } from './leads-table';
 
 export const dynamic = 'force-dynamic';
 
-async function loadLeads(): Promise<{ leads: Lead[]; error: string | null }> {
+async function loadLeads(): Promise<{ leads: Lead[]; blockedIps: string[]; error: string | null }> {
     try {
         const prisma = getPrisma();
-        const leads = await prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
-        return { leads, error: null };
+        const [leads, blockedIpRows] = await Promise.all([
+            prisma.lead.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.blockedIp.findMany(),
+        ]);
+        return { leads, blockedIps: blockedIpRows.map((row) => row.ip), error: null };
     } catch (error) {
-        return { leads: [], error: error instanceof Error ? error.message : '데이터베이스에 연결할 수 없습니다.' };
+        return { leads: [], blockedIps: [], error: error instanceof Error ? error.message : '데이터베이스에 연결할 수 없습니다.' };
     }
 }
 
 export default async function AdminLeadsPage() {
-    const { leads, error } = await loadLeads();
+    const { leads, blockedIps, error } = await loadLeads();
 
     return (
         <div>
@@ -29,7 +32,7 @@ export default async function AdminLeadsPage() {
                 </div>
             ) : (
                 <div className="mt-6">
-                    <LeadsTable initialLeads={leads} />
+                    <LeadsTable initialLeads={leads} initialBlockedIps={blockedIps} />
                 </div>
             )}
         </div>

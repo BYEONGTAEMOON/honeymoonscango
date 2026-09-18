@@ -20,8 +20,18 @@ model Lead {
   selectedResorts String?  @map("selected_resorts")
   status          String   @default("신규")
   memo            String?
+  ip              String?  @map("ip_address")
 
+  @@index([ip])
   @@map("leads")
+}
+
+model BlockedIp {
+  id        Int      @id @default(autoincrement())
+  ip        String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("blocked_ips")
 }
 
 model ChatbotConfig {

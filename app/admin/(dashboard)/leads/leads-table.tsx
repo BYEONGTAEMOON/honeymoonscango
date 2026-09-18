@@ -14,10 +14,35 @@ const STATUS_BADGE: Record<string, string> = {
     취소: 'bg-gray-100 text-gray-500',
 };
 
-export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
+export function LeadsTable({ initialLeads, initialBlockedIps }: { initialLeads: Lead[]; initialBlockedIps: string[] }) {
     const [leads, setLeads] = useState(initialLeads);
     const [savingId, setSavingId] = useState<number | null>(null);
     const [memoDraft, setMemoDraft] = useState<Record<number, string>>({});
+    const [blockedIps, setBlockedIps] = useState<Set<string>>(new Set(initialBlockedIps));
+    const [blockingIp, setBlockingIp] = useState<string | null>(null);
+
+    async function toggleBlockIp(ip: string) {
+        const isBlocked = blockedIps.has(ip);
+        setBlockingIp(ip);
+        try {
+            const res = await fetch('/api/admin/blocked-ips', {
+                method: isBlocked ? 'DELETE' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip }),
+            });
+            if (!res.ok) throw new Error('block toggle failed');
+            setBlockedIps((prev) => {
+                const next = new Set(prev);
+                if (isBlocked) next.delete(ip);
+                else next.add(ip);
+                return next;
+            });
+        } catch {
+            alert(isBlocked ? '차단 해제에 실패했습니다. 잠시 후 다시 시도해주세요.' : '차단에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        } finally {
+            setBlockingIp(null);
+        }
+    }
 
     async function updateLead(id: number, patch: { status?: string; memo?: string }) {
         setSavingId(id);
@@ -73,7 +98,10 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                                     <span className="ml-1 font-normal text-gray-400">{lead.phone ?? '-'}</span>
                                 </p>
                                 <p className="mt-1 text-xs text-gray-400">
-                                    {formatDateTime(lead.createdAt)}
+                                    {formatDateTime(lead.createdAt)} · IP {lead.ip ?? '-'}
+                                    {lead.ip && blockedIps.has(lead.ip) && (
+                                        <span className="ml-1.5 rounded-full bg-red-50 px-2 py-0.5 font-semibold text-red-500">차단됨</span>
+                                    )}
                                 </p>
                             </div>
 
@@ -147,6 +175,27 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                             >
                                 삭제
                             </button>
+
+                            {lead.ip &&
+                                (blockedIps.has(lead.ip) ? (
+                                    <button
+                                        type="button"
+                                        disabled={blockingIp === lead.ip}
+                                        onClick={() => toggleBlockIp(lead.ip!)}
+                                        className="cursor-pointer rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        IP 차단 해제
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        disabled={blockingIp === lead.ip}
+                                        onClick={() => toggleBlockIp(lead.ip!)}
+                                        className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        IP 차단
+                                    </button>
+                                ))}
                         </div>
                     </div>
                 );

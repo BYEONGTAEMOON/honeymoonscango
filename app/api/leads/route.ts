@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { getClientIp } from '@/lib/client-ip';
 import { getPrisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
@@ -25,8 +26,21 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: '이름과 연락처는 필수입니다.' }, { status: 400 });
     }
 
+    const ip = getClientIp(request);
+
     try {
         const prisma = getPrisma();
+
+        if (ip) {
+            const blocked = await prisma.blockedIp.findUnique({ where: { ip } });
+            if (blocked) {
+                // Reject without revealing the block to the client — the chatbot
+                // treats this submission as best-effort and shows completion
+                // either way, so a spammy IP gets no signal that it was blocked.
+                return NextResponse.json({ error: '요청을 처리할 수 없습니다.' }, { status: 403 });
+            }
+        }
+
         await prisma.lead.create({
             data: {
                 month: month ?? null,
@@ -36,6 +50,7 @@ export async function POST(request: Request) {
                 name,
                 phone,
                 selectedResorts: selectedResorts && selectedResorts.length > 0 ? selectedResorts.join(', ') : null,
+                ip,
             },
         });
         return NextResponse.json({ ok: true });
