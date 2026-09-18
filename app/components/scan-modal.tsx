@@ -427,7 +427,9 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                         }
 
                         if (entry.type === 'resort-picker') {
-                            const resorts = (scenario.resortsByDestination[entry.destination] ?? []).slice(0, 4);
+                            const allResorts = scenario.resortsByDestination[entry.destination] ?? [];
+                            const resorts = allResorts.slice(0, 4);
+                            const otherResorts = allResorts.slice(4);
                             return (
                                 <div key={entry.id} className={isLast ? '' : 'pointer-events-none opacity-40'}>
                                     <div className="mb-2 flex items-center justify-between text-xs font-semibold text-white/60">
@@ -476,6 +478,32 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                         })}
                                     </div>
 
+                                    {otherResorts.length > 0 && (
+                                        <div className="mt-3">
+                                            <p className="mb-2 text-xs font-semibold text-white/50">그 외 호텔 및 리조트</p>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {otherResorts.map((resort) => {
+                                                    const selected = selectedResorts.includes(resort.name);
+                                                    return (
+                                                        <button
+                                                            key={resort.slug}
+                                                            type="button"
+                                                            onClick={() => toggleResort(resort.name)}
+                                                            className={`flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
+                                                                selected
+                                                                    ? 'border-brand bg-brand/10 text-white'
+                                                                    : 'border-white/10 bg-white/5 text-white/70 hover:border-brand hover:bg-white/10 hover:text-white'
+                                                            }`}
+                                                        >
+                                                            {selected && <CheckIcon className="h-3 w-3" />}
+                                                            {resort.name}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="mt-3 flex gap-2">
                                         <button
                                             type="button"
@@ -487,10 +515,10 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => proceedToContact('추천으로 받을게요')}
+                                            onClick={() => proceedToContact(`${allResorts.length}곳 포함 추천으로 받을게요`)}
                                             className="flex-1 cursor-pointer rounded-full bg-gradient-to-r from-brand to-brand-dark px-4 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-[0_0_16px_-2px_var(--brand)]"
                                         >
-                                            추천으로 받을게요
+                                            {allResorts.length}곳 포함 추천으로 받을게요
                                         </button>
                                     </div>
                                 </div>
