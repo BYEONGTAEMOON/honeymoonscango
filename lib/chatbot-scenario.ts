@@ -60,18 +60,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             description: '전통 발리 빌리지 감성의 절벽 독채 풀빌라에서 인도양의 황홀한 짐바란 선셋을 마주하는 하이엔드 럭셔리 리트리트',
             tags: ['포시즌스짐바란', '독채풀빌라', '발리하이엔드'],
         },
-        {
-            slug: 'amandari-ubud',
-            name: '아만다리',
-            description: '우붓의 계단식 논밭 전망과 발리 전통 건축미를 살린 프라이빗 풀빌라를 갖춘 아만 브랜드의 상징적 정글 리트리트',
-            tags: ['우붓논밭뷰', '아만브랜드', '정글리트리트'],
-        },
-        {
-            slug: 'kamaya-bali',
-            name: '카마야 발리',
-            description: '울루와뚜 절벽 위에서 인도양을 마주하는 인피니티 풀과 선셋 뷰를 갖춘 모던 클리프탑 풀빌라 리조트',
-            tags: ['울루와뚜절벽', '선셋인피니티풀', '모던풀빌라'],
-        },
     ]),
     태국: withImages([
         {
@@ -148,18 +136,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             description: '이메로비글리의 가장 높은 칼데라 절벽 위에서 환상적인 일몰과 프라이빗 자쿠지를 즐기는 산토리니 로맨틱 부티크 스위트',
             tags: ['산토리니칼데라뷰', '이메로비글리석양', '로맨틱자쿠지'],
         },
-        {
-            slug: 'belmond-caruso-ravello',
-            name: '벨몬드 호텔 카루소',
-            description: '아말피 해안 라벨로 절벽 위 12세기 귀족 저택을 개조한 지중해 전망 인피니티 풀과 정원을 갖춘 클래식 럭셔리 호텔',
-            tags: ['아말피라벨로', '지중해절벽뷰', '클래식럭셔리'],
-        },
-        {
-            slug: 'hotel-cipriani-venice',
-            name: '호텔 치프리아니',
-            description: '베네치아 주데카 섬에서 운하와 도심 전경을 마주하는 프라이빗 정원과 야외 수영장을 갖춘 베네치아 대표 럭셔리 호텔',
-            tags: ['베네치아운하뷰', '주데카섬', '프라이빗정원'],
-        },
     ]),
     몰디브: withImages([
         {
@@ -185,18 +161,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             name: '아웃리거 마푸시바루',
             description: '아리아톨 남부의 청정 산호초 군락과 그림 같은 전용 샌드뱅크를 품은 세련된 모던 보헤미안 스타일의 5성급 부티크 리조트',
             tags: ['루하우스리조트', '프라이빗샌드뱅크', '모던부티크'],
-        },
-        {
-            slug: 'soneva-fushi',
-            name: '소네바 푸시',
-            description: '울창한 열대 정글 속 오버워터·비치 빌라와 프라이빗 천체 관측 돔을 갖춘 몰디브 대표 에코 럭셔리 리조트',
-            tags: ['에코럭셔리', '오버워터빌라', '프라이빗다이닝'],
-        },
-        {
-            slug: 'waldorf-astoria-ithaafushi',
-            name: '월도프 아스토리아 이타파쿠시',
-            description: '한 섬을 통째로 사용하는 초프라이빗 오버워터 빌라와 수중 레스토랑을 갖춘 몰디브 최상급 럭셔리 리조트',
-            tags: ['원아일랜드리조트', '오버워터빌라', '수중다이닝'],
         },
     ]),
     하와이: withImages([
@@ -224,18 +188,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             description: '인터내셔널 마켓 플레이스 바로 맞은편에 위치해 쇼핑과 다이닝, 해변 접근성까지 모두 갖춘 실속파 스마트 도심 리조트',
             tags: ['마켓플레이스앞', '실속파하와이여행', '와이키키중심부'],
         },
-        {
-            slug: 'halekulani-waikiki',
-            name: '할레쿨라니',
-            description: '와이키키 해변 정중앙, 클래식하고 우아한 화이트톤 인테리어와 오션프런트 인피니티 풀을 갖춘 하와이 대표 럭셔리 호텔',
-            tags: ['와이키키정중앙', '클래식럭셔리', '오션프런트풀'],
-        },
-        {
-            slug: 'four-seasons-oahu',
-            name: '포시즌스 오아후 앳 코올리나',
-            description: '한적한 코올리나 라군을 마주한 프라이빗 비치와 성인 전용 인피니티 풀을 갖춘 여유로운 오아후 서부 럭셔리 리조트',
-            tags: ['코올리나라군', '프라이빗비치', '성인전용풀'],
-        },
     ]),
     칸쿤: withImages([
         {
@@ -261,18 +213,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             name: '하얏트 비비드 그랜드 아일랜드',
             description: '니추프테 라군과 카리브해 사이에서 여유로운 보헤미안 무드와 트렌디한 루프탑 바, 감각적인 비치 클럽을 즐기는 신개념 성인 전용 리조트',
             tags: ['하얏트비비드칸쿤', '성인전용보헤미안', '라군오션프론트'],
-        },
-        {
-            slug: 'grand-velas-riviera-maya',
-            name: '그랜드 벨라스 리비에라 마야',
-            description: '정글과 백사장 사이 스위트 전용 프라이빗 풀과 최상급 미식 다이닝을 갖춘 리비에라 마야 대표 올인클루시브 리조트',
-            tags: ['그랜드벨라스', '올인클루시브', '스위트프라이빗풀'],
-        },
-        {
-            slug: 'nizuc-resort-cancun',
-            name: '니주크 리조트',
-            description: '카리브해와 정글이 만나는 프라이빗 코브와 세련된 모던 럭셔리 빌라를 갖춘 칸쿤 호텔존 최남단 부티크 리조트',
-            tags: ['프라이빗코브', '모던럭셔리빌라', '호텔존최남단'],
         },
     ]),
     모리셔스: withImages([
@@ -300,18 +240,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             description: '블랙리버 중심부의 편리한 인프라와 울창한 열대 프라이빗 가든 속 개별 풀을 갖춘 여유롭고 완벽한 사생활 보장형 럭셔리 독채 빌라',
             tags: ['마르게리트빌라', '독채풀빌라', '블랙리버프라이빗'],
         },
-        {
-            slug: 'four-seasons-anahita',
-            name: '포시즌스 아나히타',
-            description: '동부 해안 라군을 따라 이어진 프라이빗 풀빌라와 18홀 골프 코스를 갖춘 여유로운 모리셔스 대표 럭셔리 리조트',
-            tags: ['아나히타라군', '프라이빗풀빌라', '골프리조트'],
-        },
-        {
-            slug: 'shangri-la-le-touessrok',
-            name: '샹그릴라 르 투에스록',
-            description: '두 개의 프라이빗 섬과 청록색 라군을 품은 클래식하고 여유로운 모리셔스 동부 대표 럭셔리 리조트',
-            tags: ['프라이빗아일랜드', '라군뷰', '클래식럭셔리'],
-        },
     ]),
     호주: withImages([
         {
@@ -337,18 +265,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             name: '멜버른 시티 부티크 호텔',
             description: '야라강변 감성 거리와 카페 문화를 도보로 즐기는 멜버른 중심가 부티크 호텔',
             tags: ['멜버른시티', '야라강변', '부티크호텔'],
-        },
-        {
-            slug: 'qualia-hamilton-island',
-            name: '퀄리아 해밀턴 아일랜드',
-            description: '휫선데이 제도의 산호해를 마주한 프라이빗 풀 파빌리온과 세련된 모던 건축미를 갖춘 호주 대표 럭셔리 리조트',
-            tags: ['휫선데이제도', '프라이빗풀파빌리온', '산호해뷰'],
-        },
-        {
-            slug: 'crown-towers-sydney',
-            name: '크라운 타워스 시드니',
-            description: '달링 하버와 시드니 스카이라인을 한눈에 담는 하이라이즈 오션뷰 스위트를 갖춘 도심 대표 럭셔리 호텔',
-            tags: ['달링하버뷰', '시드니스카이라인', '하이라이즈스위트'],
         },
     ]),
     두바이: withImages([
@@ -376,18 +292,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             description: '부르즈 할리파 뷰와 분수쇼를 즐기는 도심 럭셔리 부티크 호텔',
             tags: ['부르즈할리파뷰', '분수쇼뷰', '다운타운두바이'],
         },
-        {
-            slug: 'one-only-royal-mirage',
-            name: '원앤온리 로얄 미라지',
-            description: '아라비안 정원과 야자수 사이 프라이빗 비치를 품은 클래식 아랍 건축미의 두바이 대표 럭셔리 리조트',
-            tags: ['프라이빗비치', '아라비안정원', '클래식아랍건축'],
-        },
-        {
-            slug: 'jumeirah-al-qasr',
-            name: '주메이라 알 카스르',
-            description: '아랍 왕궁을 재현한 웅장한 건축미와 수로 곤돌라 서비스를 갖춘 매디낫 주메이라 내 시그니처 럭셔리 리조트',
-            tags: ['아랍왕궁건축', '수로곤돌라', '매디낫주메이라'],
-        },
     ]),
     괌: withImages([
         {
@@ -414,18 +318,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             description: '투몬 비치 프런트에 위치한 아늑하고 합리적인 부티크 리조트',
             tags: ['투몬비치프런트', '가성비부티크', '아늑한객실'],
         },
-        {
-            slug: 'lotte-hotel-guam',
-            name: '롯데 호텔 괌',
-            description: '투몬 베이 프라이빗 비치와 다양한 다이닝, 워터파크형 수영장을 갖춘 가족·커플 모두에게 인기인 대형 리조트',
-            tags: ['투몬베이', '워터파크풀', '다양한다이닝'],
-        },
-        {
-            slug: 'pacific-islands-club-guam',
-            name: '퍼시픽 아일랜드 클럽 괌',
-            description: '드넓은 워터파크와 다양한 액티비티를 갖춘 투몬 비치의 활기찬 올인클루시브 스타일 리조트',
-            tags: ['워터파크', '액티비티리조트', '투몬비치'],
-        },
     ]),
     세부: withImages([
         {
@@ -451,18 +343,6 @@ const DEFAULT_RESORTS_BY_DESTINATION: Record<string, DestinationResort[]> = {
             name: '모벤픽 호텔 막탄 세부',
             description: '화이트샌드 비치와 다이빙 포인트에 인접한 스위스 감성 럭셔리 호텔',
             tags: ['화이트샌드비치', '다이빙포인트', '스위스감성'],
-        },
-        {
-            slug: 'maribago-bluewater-cebu',
-            name: '마리바고 블루워터 세부',
-            description: '막탄섬 프라이빗 비치와 열대 정원 속 여유로운 방갈로형 객실을 갖춘 고즈넉한 세부 대표 비치 리조트',
-            tags: ['막탄프라이빗비치', '열대정원', '방갈로객실'],
-        },
-        {
-            slug: 'nustar-resort-cebu',
-            name: '누스타 리조트 세부',
-            description: '세부 시티와 가까운 최신 인피니티 풀과 카지노, 엔터테인먼트 시설을 갖춘 모던 올인원 리조트',
-            tags: ['세부시티인접', '모던인피니티풀', '올인원리조트'],
         },
     ]),
 };
