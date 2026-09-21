@@ -20,7 +20,6 @@ html {
   --color-brand-dark: var(--brand-dark);
   --color-brand-light: var(--brand-light);
   --font-sans: var(--font-pretendard);
-  --font-mono: var(--font-geist-mono);
 }
 
 body {
