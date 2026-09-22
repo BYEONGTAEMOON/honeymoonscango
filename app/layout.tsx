@@ -28,6 +28,9 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: '/',
+        types: {
+            'application/rss+xml': '/rss.xml',
+        },
     },
     openGraph: {
         title: SITE_NAME,
@@ -41,9 +44,6 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: SITE_NAME,
         description: SITE_DESCRIPTION,
-    },
-    icons: {
-        icon: '/favicon.ico',
     },
 };
 
