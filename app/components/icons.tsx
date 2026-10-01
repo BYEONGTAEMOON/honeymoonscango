@@ -156,6 +156,20 @@ export function GridIcon({ className }: IconProps) {
     );
 }
 
+export function BellIcon({ className }: IconProps) {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" className={className}>
+            <path
+                d="M6 10.5a6 6 0 1 1 12 0c0 3.2 1 4.8 1.6 5.6a.9.9 0 0 1-.7 1.4H5.1a.9.9 0 0 1-.7-1.4C5 15.3 6 13.7 6 10.5Z"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+            />
+            <path d="M9.5 19.5a2.5 2.5 0 0 0 5 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+    );
+}
+
 export function ListIcon({ className }: IconProps) {
     return (
         <svg viewBox="0 0 24 24" fill="none" className={className}>

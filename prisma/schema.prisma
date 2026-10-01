@@ -50,3 +50,13 @@ model AdminAccount {
 
   @@map("admin_account")
 }
+
+model NotificationRecipient {
+  id        Int      @id @default(autoincrement())
+  type      String // "email" | "sms"
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([type, value])
+  @@map("notification_recipients")
+}

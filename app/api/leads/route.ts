@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { getClientIp } from '@/lib/client-ip';
+import { notifyNewLead } from '@/lib/notify';
 import { getPrisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
             }
         }
 
+        const selectedResortsText = selectedResorts && selectedResorts.length > 0 ? selectedResorts.join(', ') : null;
+
         await prisma.lead.create({
             data: {
                 month: month ?? null,
@@ -49,10 +52,21 @@ export async function POST(request: Request) {
                 region: region ?? null,
                 name,
                 phone,
-                selectedResorts: selectedResorts && selectedResorts.length > 0 ? selectedResorts.join(', ') : null,
+                selectedResorts: selectedResortsText,
                 ip,
             },
         });
+
+        await notifyNewLead({
+            name,
+            phone,
+            month: month ?? null,
+            destination: destination ?? null,
+            budget: budget ?? null,
+            region: region ?? null,
+            selectedResorts: selectedResortsText,
+        });
+
         return NextResponse.json({ ok: true });
     } catch (error) {
         console.error('Failed to save lead', error);
