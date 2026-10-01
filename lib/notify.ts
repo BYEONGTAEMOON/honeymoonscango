@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { SolapiMessageService } from 'solapi';
 
 import { getPrisma } from './prisma';
@@ -25,46 +25,54 @@ function buildSummaryLines(lead: NewLeadInfo): string[] {
     ];
 }
 
-function getMailTransport() {
-    const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
-    if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASSWORD) return null;
-
-    return nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: Number(SMTP_PORT),
-        secure: Number(SMTP_PORT) === 465,
-        auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
-    });
+function getResendClient(): Resend | null {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) return null;
+    return new Resend(apiKey);
 }
 
-function getSmsClient() {
-    const { SOLAPI_API_KEY, SOLAPI_API_SECRET, SOLAPI_SENDER } = process.env;
-    if (!SOLAPI_API_KEY || !SOLAPI_API_SECRET || !SOLAPI_SENDER) return null;
-    return { client: new SolapiMessageService(SOLAPI_API_KEY, SOLAPI_API_SECRET), from: SOLAPI_SENDER };
+function getSolapiClient() {
+    const { SOLAPI_API_KEY, SOLAPI_API_SECRET } = process.env;
+    if (!SOLAPI_API_KEY || !SOLAPI_API_SECRET) return null;
+    return new SolapiMessageService(SOLAPI_API_KEY, SOLAPI_API_SECRET);
+}
+
+async function getSmsSender(): Promise<string | null> {
+    const prisma = getPrisma();
+    const settings = await prisma.notificationSettings.findUnique({ where: { id: 1 } });
+    return settings?.smsSender ?? null;
 }
 
 export function isMailConfigured(): boolean {
-    return getMailTransport() !== null;
+    return getResendClient() !== null;
 }
 
-export function isSmsConfigured(): boolean {
-    return getSmsClient() !== null;
+export async function isSmsConfigured(): Promise<boolean> {
+    if (!getSolapiClient()) return false;
+    return (await getSmsSender()) !== null;
 }
 
+// Resend's sandbox sender (onboarding@resend.dev) only delivers to the email
+// the Resend account itself is registered with — verify a custom domain in
+// Resend to notify arbitrary recipient addresses.
 export async function sendEmails(to: string[], lines: string[], subject = '[허니문스캔GO] 새 신청이 접수됐어요') {
-    const transport = getMailTransport();
-    if (!transport || to.length === 0) return;
+    const resend = getResendClient();
+    if (!resend || to.length === 0) return;
 
-    const from = process.env.SMTP_FROM || process.env.SMTP_USER;
-    await transport.sendMail({ from, to: to.join(','), subject, text: lines.join('\n') });
+    const from = process.env.RESEND_FROM || 'onboarding@resend.dev';
+    const { error } = await resend.emails.send({ from, to, subject, text: lines.join('\n') });
+    if (error) throw new Error(typeof error === 'object' && 'message' in error ? String(error.message) : '이메일 발송 실패');
 }
 
 export async function sendSmsMessages(to: string[], lines: string[]) {
-    const sms = getSmsClient();
-    if (!sms || to.length === 0) return;
+    const client = getSolapiClient();
+    const sender = await getSmsSender();
+    if (!client || !sender || to.length === 0) return;
 
     const text = `[허니문스캔GO]\n${lines.join('\n')}`;
-    await Promise.allSettled(to.map((phone) => sms.client.send({ to: phone, from: sms.from, text })));
+    const results = await Promise.allSettled(to.map((phone) => client.send({ to: phone, from: sender, text })));
+    const failure = results.find((r): r is PromiseRejectedResult => r.status === 'rejected');
+    if (failure) throw failure.reason;
 }
 
 // Best-effort: a lead must still be saved even if notifications are

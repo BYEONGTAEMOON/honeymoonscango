@@ -33,12 +33,12 @@ export async function POST(request: Request) {
 
         if (body.type === 'email') {
             if (!isMailConfigured()) {
-                return NextResponse.json({ error: 'SMTP 환경변수(SMTP_HOST 등)가 아직 설정되지 않았어요.' }, { status: 400 });
+                return NextResponse.json({ error: 'RESEND_API_KEY 환경변수가 아직 설정되지 않았어요.' }, { status: 400 });
             }
             await sendEmails(values, testLines, '[허니문스캔GO] 테스트 알림');
         } else {
-            if (!isSmsConfigured()) {
-                return NextResponse.json({ error: 'SOLAPI 환경변수가 아직 설정되지 않았어요.' }, { status: 400 });
+            if (!(await isSmsConfigured())) {
+                return NextResponse.json({ error: 'SOLAPI API 키 또는 발신번호가 아직 설정되지 않았어요.' }, { status: 400 });
             }
             await sendSmsMessages(values, testLines);
         }

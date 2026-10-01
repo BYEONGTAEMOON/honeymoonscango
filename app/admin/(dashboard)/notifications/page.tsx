@@ -1,23 +1,41 @@
 import type { NotificationRecipient } from '@/generated/prisma/client';
-import { isMailConfigured, isSmsConfigured } from '@/lib/notify';
+import { isMailConfigured } from '@/lib/notify';
 import { getPrisma } from '@/lib/prisma';
 
 import { NotificationsForm } from './notifications-form';
 
 export const dynamic = 'force-dynamic';
 
-async function loadRecipients(): Promise<{ recipients: NotificationRecipient[]; error: string | null }> {
+async function loadData(): Promise<{
+    recipients: NotificationRecipient[];
+    smsSender: string | null;
+    smsApiConfigured: boolean;
+    error: string | null;
+}> {
     try {
         const prisma = getPrisma();
-        const recipients = await prisma.notificationRecipient.findMany({ orderBy: { createdAt: 'desc' } });
-        return { recipients, error: null };
+        const [recipients, settings] = await Promise.all([
+            prisma.notificationRecipient.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.notificationSettings.findUnique({ where: { id: 1 } }),
+        ]);
+        return {
+            recipients,
+            smsSender: settings?.smsSender ?? null,
+            smsApiConfigured: Boolean(process.env.SOLAPI_API_KEY && process.env.SOLAPI_API_SECRET),
+            error: null,
+        };
     } catch (error) {
-        return { recipients: [], error: error instanceof Error ? error.message : '데이터베이스에 연결할 수 없습니다.' };
+        return {
+            recipients: [],
+            smsSender: null,
+            smsApiConfigured: false,
+            error: error instanceof Error ? error.message : '데이터베이스에 연결할 수 없습니다.',
+        };
     }
 }
 
 export default async function AdminNotificationsPage() {
-    const { recipients, error } = await loadRecipients();
+    const { recipients, smsSender, smsApiConfigured, error } = await loadData();
 
     return (
         <div>
@@ -33,7 +51,8 @@ export default async function AdminNotificationsPage() {
                     <NotificationsForm
                         initialRecipients={recipients}
                         mailConfigured={isMailConfigured()}
-                        smsConfigured={isSmsConfigured()}
+                        smsApiConfigured={smsApiConfigured}
+                        initialSmsSender={smsSender}
                     />
                 </div>
             )}

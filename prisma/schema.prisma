@@ -60,3 +60,11 @@ model NotificationRecipient {
   @@unique([type, value])
   @@map("notification_recipients")
 }
+
+model NotificationSettings {
+  id        Int      @id @default(1)
+  smsSender String?  @map("sms_sender") // SOLAPI-registered caller ID, e.g. "01012345678"
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_settings")
+}

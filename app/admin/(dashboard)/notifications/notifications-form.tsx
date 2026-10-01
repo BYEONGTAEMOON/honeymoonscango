@@ -113,11 +113,13 @@ function RecipientList({
 export function NotificationsForm({
     initialRecipients,
     mailConfigured,
-    smsConfigured,
+    smsApiConfigured,
+    initialSmsSender,
 }: {
     initialRecipients: NotificationRecipient[];
     mailConfigured: boolean;
-    smsConfigured: boolean;
+    smsApiConfigured: boolean;
+    initialSmsSender: string | null;
 }) {
     const [recipients, setRecipients] = useState(initialRecipients);
     const [busy, setBusy] = useState(false);
@@ -126,6 +128,32 @@ export function NotificationsForm({
         email: null,
         sms: null,
     });
+    const [smsSender, setSmsSender] = useState(initialSmsSender ?? '');
+    const [savedSmsSender, setSavedSmsSender] = useState(initialSmsSender);
+    const [senderSaving, setSenderSaving] = useState(false);
+    const [senderMessage, setSenderMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    const smsConfigured = smsApiConfigured && Boolean(savedSmsSender);
+
+    async function saveSmsSender() {
+        setSenderSaving(true);
+        setSenderMessage(null);
+        try {
+            const res = await fetch('/api/admin/notification-settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ smsSender }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error ?? '저장에 실패했습니다.');
+            setSavedSmsSender(data.settings.smsSender);
+            setSenderMessage({ type: 'success', text: '저장했어요.' });
+        } catch (error) {
+            setSenderMessage({ type: 'error', text: error instanceof Error ? error.message : '저장에 실패했습니다.' });
+        } finally {
+            setSenderSaving(false);
+        }
+    }
 
     const emailRecipients = recipients.filter((r) => r.type === 'email');
     const smsRecipients = recipients.filter((r) => r.type === 'sms');
@@ -191,11 +219,9 @@ export function NotificationsForm({
         <div className="space-y-6">
             <SectionCard title="이메일 알림">
                 <div className="flex items-center gap-2">
-                    <ConfigBadge configured={mailConfigured} label="SMTP" />
+                    <ConfigBadge configured={mailConfigured} label="Resend" />
                     {!mailConfigured && (
-                        <span className="text-xs text-gray-400">
-                            SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASSWORD 환경변수를 먼저 설정해주세요.
-                        </span>
+                        <span className="text-xs text-gray-400">RESEND_API_KEY 환경변수를 먼저 설정해주세요.</span>
                     )}
                 </div>
                 <RecipientList
@@ -215,12 +241,39 @@ export function NotificationsForm({
             <SectionCard title="문자(SMS) 알림">
                 <div className="flex items-center gap-2">
                     <ConfigBadge configured={smsConfigured} label="SOLAPI" />
-                    {!smsConfigured && (
-                        <span className="text-xs text-gray-400">
-                            SOLAPI_API_KEY / SOLAPI_API_SECRET / SOLAPI_SENDER 환경변수를 먼저 설정해주세요.
-                        </span>
+                    {!smsApiConfigured && (
+                        <span className="text-xs text-gray-400">SOLAPI_API_KEY / SOLAPI_API_SECRET 환경변수를 먼저 설정해주세요.</span>
                     )}
                 </div>
+
+                <div>
+                    <span className="text-xs font-semibold text-gray-600">
+                        발신번호 <span className="font-normal text-gray-400">(SOLAPI에 사전 등록·인증된 번호만 가능)</span>
+                    </span>
+                    <div className="mt-1.5 flex items-center gap-2">
+                        <input
+                            type="tel"
+                            value={smsSender}
+                            onChange={(e) => setSmsSender(e.target.value)}
+                            placeholder="예: 01012345678"
+                            className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+                        />
+                        <button
+                            type="button"
+                            disabled={senderSaving}
+                            onClick={saveSmsSender}
+                            className="cursor-pointer rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {senderSaving ? '저장 중...' : '저장'}
+                        </button>
+                    </div>
+                    {senderMessage && (
+                        <p className={`mt-1 text-xs font-medium ${senderMessage.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                            {senderMessage.text}
+                        </p>
+                    )}
+                </div>
+
                 <RecipientList
                     type="sms"
                     label="문자"
