@@ -9,6 +9,7 @@ export type NewLeadInfo = {
     month: string | null;
     destination: string | null;
     budget: string | null;
+    duration: string | null;
     region: string | null;
     selectedResorts: string | null;
 };
@@ -20,6 +21,7 @@ function buildSummaryLines(lead: NewLeadInfo): string[] {
         `출발월: ${lead.month ?? '-'}`,
         `목적지: ${lead.destination ?? '-'}`,
         `예산: ${lead.budget ?? '-'}`,
+        `여행 기간: ${lead.duration ?? '-'}`,
         `거주 지역: ${lead.region ?? '-'}`,
         `선택 리조트: ${lead.selectedResorts ?? '-'}`,
     ];

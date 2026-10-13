@@ -112,7 +112,7 @@ export function LeadsTable({ initialLeads, initialBlockedIps }: { initialLeads: 
                             </span>
                         </div>
 
-                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-5">
+                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-6">
                             <div>
                                 <p className="text-xs text-gray-400">출발월</p>
                                 <p className="mt-0.5 font-medium text-gray-900">{lead.month ?? '-'}</p>
@@ -124,6 +124,10 @@ export function LeadsTable({ initialLeads, initialBlockedIps }: { initialLeads: 
                             <div>
                                 <p className="text-xs text-gray-400">예산</p>
                                 <p className="mt-0.5 font-medium text-gray-900">{lead.budget ?? '-'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-400">여행 기간</p>
+                                <p className="mt-0.5 font-medium text-gray-900">{lead.duration ?? '-'}</p>
                             </div>
                             <div>
                                 <p className="text-xs text-gray-400">거주 지역</p>

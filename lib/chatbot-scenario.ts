@@ -11,6 +11,8 @@ export type ChatbotScenario = {
     destinationQuestion: string;
     budgets: string[];
     budgetQuestion: string;
+    durations: string[];
+    durationQuestion: string;
     resortPickerIntro: string;
     afterResortMessage: string;
     phoneQuestion: string;
@@ -411,6 +413,9 @@ export const DEFAULT_CHATBOT_SCENARIO: ChatbotScenario = {
     budgets: ['100~200만원', '200~300만원', '300~500만원', '500만원 이상'],
     budgetQuestion:
         '예상 예산은 어느 정도로 보세요? 💰\n예산은 총 견적을 좌우하는 가장 큰 변수예요.\n정확하지 않아도 괜찮으니 대략 범위로 골라주세요.',
+    durations: ['3박 5일', '4박 6일', '5박 7일', '6박 8일 이상'],
+    durationQuestion:
+        '여행 기간은 어느 정도로 생각하고 계세요? 🗓️\n일정에 따라 추천 리조트 구성과 항공 스케줄이 달라져요.\n아직 정확하지 않다면 가장 가까운 기간으로 골라주세요.',
     resortPickerIntro:
         '조건에 맞는 {destination} 리조트 후보예요.\n혹시 1순위로 보고 계신 곳이 있다면 최대 3곳까지 골라주세요.\n(없으면 아래 "추천으로 받을게요")\n\n선택하신 리조트 + 함께 보면 좋을 리조트까지 총 3곳의 항공 잔여좌석 · 예상 총견적 · 제휴 혜택을 한 번에 정리해 드릴게요.',
     afterResortMessage: '좋아요! 그럼 아래 자료를 무료로 정리해서 보내드릴게요. 🎁',

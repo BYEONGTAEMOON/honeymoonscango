@@ -9,6 +9,7 @@ export async function POST(request: Request) {
         month?: string;
         destination?: string;
         budget?: string;
+        duration?: string;
         region?: string;
         name?: string;
         phone?: string;
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
     }
 
-    const { month, destination, budget, region, name, phone, selectedResorts } = body;
+    const { month, destination, budget, duration, region, name, phone, selectedResorts } = body;
 
     if (!name || !phone) {
         return NextResponse.json({ error: '이름과 연락처는 필수입니다.' }, { status: 400 });
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
                 month: month ?? null,
                 destination: destination ?? null,
                 budget: budget ?? null,
+                duration: duration ?? null,
                 region: region ?? null,
                 name,
                 phone,
@@ -63,6 +65,7 @@ export async function POST(request: Request) {
             month: month ?? null,
             destination: destination ?? null,
             budget: budget ?? null,
+            duration: duration ?? null,
             region: region ?? null,
             selectedResorts: selectedResortsText,
         });

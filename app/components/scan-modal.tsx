@@ -7,14 +7,15 @@ import { applyTemplate, type ChatbotScenario } from '@/lib/chatbot-scenario';
 
 import { CheckIcon, CloseIcon, GiftIcon, SearchIcon, SendIcon } from './icons';
 
-type Step = 'month' | 'destination' | 'budget' | 'resorts' | 'contact' | 'region' | 'name' | 'done';
+type Step = 'month' | 'destination' | 'budget' | 'duration' | 'resorts' | 'contact' | 'region' | 'name' | 'done';
 
-const STEP_ORDER: Step[] = ['month', 'destination', 'budget', 'resorts', 'contact', 'region', 'name', 'done'];
+const STEP_ORDER: Step[] = ['month', 'destination', 'budget', 'duration', 'resorts', 'contact', 'region', 'name', 'done'];
 
 const STEP_LABEL: Record<Step, string> = {
     month: '출발월 확인 중',
     destination: '목적지 확인 중',
     budget: '예산 확인 중',
+    duration: '여행 기간 확인 중',
     resorts: '희망 리조트 선택 중',
     contact: '자료 받을 번호 확인 중',
     region: '거주 지역 확인 중',
@@ -26,6 +27,7 @@ const PLACEHOLDER_BY_STEP: Record<Step, string> = {
     month: '예: 2027년 3월',
     destination: '예: 발리',
     budget: '예: 500만원',
+    duration: '예: 4박 6일',
     resorts: '위 후보에서 최대 3곳까지 선택하세요',
     contact: '010 1234 5678',
     region: '예: 부산',
@@ -33,7 +35,7 @@ const PLACEHOLDER_BY_STEP: Record<Step, string> = {
     done: '상담이 접수되었습니다',
 };
 
-type OptionKind = 'month' | 'destination' | 'budget' | 'region';
+type OptionKind = 'month' | 'destination' | 'budget' | 'duration' | 'region';
 
 type Entry =
     | { id: string; type: 'bot'; text: string }
@@ -123,7 +125,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
     const scrollRef = useRef<HTMLDivElement>(null);
     const appliedPrefillRef = useRef(false);
     const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-    const leadDataRef = useRef<{ month?: string; destination?: string; budget?: string; region?: string; phone?: string }>({});
+    const leadDataRef = useRef<{ month?: string; destination?: string; budget?: string; duration?: string; region?: string; phone?: string }>({});
 
     useEffect(() => {
         const pendingTimeouts = timeoutsRef.current;
@@ -206,6 +208,18 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
     function handleBudgetAnswer(value: string) {
         appendNow({ id: nextId(), type: 'user', text: value });
         leadDataRef.current.budget = value;
+        appendBotSequence(
+            [
+                { id: nextId(), type: 'bot', text: scenario.durationQuestion },
+                { id: nextId(), type: 'options', kind: 'duration', options: scenario.durations },
+            ],
+            'duration',
+        );
+    }
+
+    function handleDurationAnswer(value: string) {
+        appendNow({ id: nextId(), type: 'user', text: value });
+        leadDataRef.current.duration = value;
 
         const destination = prefillDestination ?? findAnsweredDestination(entries);
         const hasResortCandidates = (scenario.resortsByDestination[destination] ?? []).length > 0;
@@ -326,6 +340,11 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
             handleBudgetAnswer(value);
             return;
         }
+        if (step === 'duration') {
+            setInputValue('');
+            handleDurationAnswer(value);
+            return;
+        }
         if (step === 'contact') {
             handlePhoneSubmit();
             return;
@@ -412,7 +431,9 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                       ? handleDestinationAnswer
                                       : entry.kind === 'budget'
                                         ? handleBudgetAnswer
-                                        : handleRegionAnswer;
+                                        : entry.kind === 'duration'
+                                          ? handleDurationAnswer
+                                          : handleRegionAnswer;
 
                             return (
                                 <div key={entry.id} className={`grid grid-cols-2 gap-2 sm:grid-cols-4 ${isLast ? '' : 'pointer-events-none opacity-40'}`}>
