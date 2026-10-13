@@ -15,6 +15,8 @@ export function ContentConfigForm({ initialScenario }: { initialScenario: Chatbo
     const [scenario, setScenario] = useState<ChatbotScenario>(initialScenario);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [purging, setPurging] = useState(false);
+    const [purgeMessage, setPurgeMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     function set<K extends keyof ChatbotScenario>(key: K, value: ChatbotScenario[K]) {
         setScenario((prev) => ({ ...prev, [key]: value }));
@@ -42,6 +44,21 @@ export function ContentConfigForm({ initialScenario }: { initialScenario: Chatbo
         }
     }
 
+    async function handlePurgeImages() {
+        setPurging(true);
+        setPurgeMessage(null);
+        try {
+            const res = await fetch('/api/admin/image-cache', { method: 'POST' });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error ?? '이미지 새로고침에 실패했습니다.');
+            setPurgeMessage({ type: 'success', text: `이미지 ${data.count}개의 캐시를 비웠어요. 다음 접속부터 새 이미지가 보여요.` });
+        } catch (error) {
+            setPurgeMessage({ type: 'error', text: error instanceof Error ? error.message : '이미지 새로고침에 실패했습니다.' });
+        } finally {
+            setPurging(false);
+        }
+    }
+
     function handleReset() {
         if (!confirm('기본값으로 초기화할까요? 저장 전까지는 사이트에 반영되지 않아요.')) return;
         setScenario((prev) => ({
@@ -54,6 +71,27 @@ export function ContentConfigForm({ initialScenario }: { initialScenario: Chatbo
 
     return (
         <div className="space-y-6 pb-24">
+            <SectionCard
+                title="이미지 새로고침"
+                description="이미지 서버(banhanatour.kr 등)에서 같은 파일명으로 사진을 교체했다면 눌러주세요. 이미 사이트를 열어둔 브라우저에는 이전 사진이 최대 1시간 남아 있을 수 있어요(강력 새로고침 시 바로 반영)."
+            >
+                <div className="flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        disabled={purging}
+                        onClick={handlePurgeImages}
+                        className="cursor-pointer rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {purging ? '새로고침 중...' : '이미지 새로고침'}
+                    </button>
+                    {purgeMessage && (
+                        <p className={`text-sm font-medium ${purgeMessage.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                            {purgeMessage.text}
+                        </p>
+                    )}
+                </div>
+            </SectionCard>
+
             <SectionCard
                 title="1. 목적지별 리조트"
                 description="발리~세부까지, 홈페이지 여행지 섹션과 챗봇의 리조트 후보 화면에 동일하게 반영돼요."

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-const cards = [
+export const safeHoneyCards = [
     {
         slug: 'meritz-tower',
         stat: '총 10억 원',
@@ -37,7 +37,7 @@ export function SafeHoneySection() {
             </div>
 
             <div className="mx-auto mt-12 grid max-w-4xl gap-6 sm:grid-cols-3">
-                {cards.map((card) => (
+                {safeHoneyCards.map((card) => (
                     <div key={card.slug} className="relative aspect-[3/4] overflow-hidden rounded-2xl">
                         <Image
                             src={card.image}
