@@ -65,10 +65,10 @@ const reviews: Review[] = [
     {
         initial: '김',
         color: 'pink',
-        destination: '태국',
+        destination: '코사무이',
         quote: '왕궁을 그대로 재현한 웅장한 건축미에 압도됐어요. 라마이 비치 전용 풀빌라라 프라이버시도 완벽했습니다.',
         couple: '김**·오** 부부',
-        detail: '태국 아만타라푸라 4박 6일',
+        detail: '코사무이 아만타라푸라 4박 6일',
         daysAgo: 9,
     },
     {
@@ -119,10 +119,10 @@ const reviews: Review[] = [
     {
         initial: '신',
         color: 'pink',
-        destination: '태국',
+        destination: '푸켓',
         quote: '성인 전용 구역이라 조용하고 프라이빗했어요. 에메랄드빛 바다뷰 인피니티 풀은 잊지 못할 것 같아요.',
         couple: '신**·구** 부부',
-        detail: '태국 더 쇼어 앳 카타타니 4박 6일',
+        detail: '푸켓 더 쇼어 앳 카타타니 4박 6일',
         daysAgo: 17,
     },
     {

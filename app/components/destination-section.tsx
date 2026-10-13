@@ -10,11 +10,11 @@ export type { DestinationResort };
 type DestinationSectionProps = {
     id?: string;
     destination: string;
-    tagline?: string;
+    tagline: string;
     resorts: DestinationResort[];
 };
 
-export function DestinationSection({ id, destination, tagline = '오션뷰. 풀빌라. 리조트.', resorts }: DestinationSectionProps) {
+export function DestinationSection({ id, destination, tagline, resorts }: DestinationSectionProps) {
     return (
         <section id={id} className="scroll-mt-20 border-t border-gray-100 px-6 py-20 md:px-10 md:py-28">
             <div className="mx-auto max-w-2xl text-center">

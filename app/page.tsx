@@ -29,13 +29,14 @@ export default async function Home() {
                 <TrustSection />
                 <DealsSection />
                 <ResortsSection resorts={scenario.popularResorts} />
-                <DestinationSection id="bali" destination="발리" resorts={resortsFor('발리')} />
-                <DestinationSection destination="태국" resorts={resortsFor('태국')} />
-                <DestinationSection destination="유럽" tagline="호텔. 리조트." resorts={resortsFor('유럽')} />
-                <DestinationSection destination="몰디브" resorts={resortsFor('몰디브')} />
-                <DestinationSection destination="하와이" tagline="오션뷰. 호텔. 리조트." resorts={resortsFor('하와이')} />
-                <DestinationSection destination="칸쿤" tagline="오션뷰. 호텔. 리조트." resorts={resortsFor('칸쿤')} />
-                <DestinationSection destination="모리셔스" resorts={resortsFor('모리셔스')} />
+                <DestinationSection id="bali" destination="발리" tagline="풀빌라. 액티비티. 프라이빗패키지" resorts={resortsFor('발리')} />
+                <DestinationSection destination="코사무이" tagline="휴양. 오션뷰. 프라이빗패키지" resorts={resortsFor('코사무이')} />
+                <DestinationSection destination="푸켓" tagline="휴양. 섬투어. 패키지" resorts={resortsFor('푸켓')} />
+                <DestinationSection destination="유럽" tagline="도시. 루트." resorts={resortsFor('유럽')} />
+                <DestinationSection destination="몰디브" tagline="워터빌라. 프라이빗." resorts={resortsFor('몰디브')} />
+                <DestinationSection destination="하와이" tagline="쇼핑. 자유여행." resorts={resortsFor('하와이')} />
+                <DestinationSection destination="칸쿤" tagline="올인클루시브. 카리브해." resorts={resortsFor('칸쿤')} />
+                <DestinationSection destination="모리셔스" tagline="휴양. 액티비티." resorts={resortsFor('모리셔스')} />
                 <HowItWorksSection />
                 <SafeHoneySection />
                 <StartNowSection />
