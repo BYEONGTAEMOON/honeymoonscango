@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-guard';
@@ -35,6 +36,10 @@ export async function PUT(request: Request) {
             create: { id: 1, data: scenario },
             update: { data: scenario },
         });
+        // The homepage is ISR-cached (revalidate = 60) and renders these same
+        // resorts/images, so without this an admin edit wouldn't show up until
+        // the cache expired and a visitor triggered a background refresh.
+        revalidatePath('/');
         return NextResponse.json({ ok: true, scenario });
     } catch (error) {
         console.error('Failed to save chatbot config', error);
