@@ -1,4 +1,5 @@
 import type { Lead } from '@/generated/prisma/client';
+import { getAdminSession } from '@/lib/admin-guard';
 import { getPrisma } from '@/lib/prisma';
 
 import { LeadsTable } from './leads-table';
@@ -19,12 +20,15 @@ async function loadLeads(): Promise<{ leads: Lead[]; blockedIps: string[]; error
 }
 
 export default async function AdminLeadsPage() {
-    const { leads, blockedIps, error } = await loadLeads();
+    const [{ leads, blockedIps, error }, session] = await Promise.all([loadLeads(), getAdminSession()]);
+    const readOnly = session?.role !== 'main';
 
     return (
         <div>
             <h1 className="text-2xl font-bold text-gray-900">신청 데이터</h1>
-            <p className="mt-1 text-sm text-gray-500">챗봇으로 접수된 신청 건을 확인하고 상태·메모를 관리하세요.</p>
+            <p className="mt-1 text-sm text-gray-500">
+                {readOnly ? '챗봇으로 접수된 신청 건을 확인하세요. (서브 관리자는 조회만 가능해요)' : '챗봇으로 접수된 신청 건을 확인하고 상태·메모를 관리하세요.'}
+            </p>
 
             {error ? (
                 <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
@@ -32,7 +36,7 @@ export default async function AdminLeadsPage() {
                 </div>
             ) : (
                 <div className="mt-6">
-                    <LeadsTable initialLeads={leads} initialBlockedIps={blockedIps} />
+                    <LeadsTable initialLeads={leads} initialBlockedIps={blockedIps} readOnly={readOnly} />
                 </div>
             )}
         </div>

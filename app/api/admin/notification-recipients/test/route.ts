@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 
-import { requireAdminSession } from '@/lib/admin-guard';
+import { requireMainAdmin } from '@/lib/admin-guard';
 import { isMailConfigured, isSmsConfigured, sendEmails, sendSmsMessages } from '@/lib/notify';
 import { getPrisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 

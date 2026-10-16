@@ -1,13 +1,13 @@
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
-import { requireAdminSession } from '@/lib/admin-guard';
+import { requireMainAdmin } from '@/lib/admin-guard';
 import { mergeScenario, type ChatbotScenario } from '@/lib/chatbot-scenario';
 import { getPrisma } from '@/lib/prisma';
 import { getScenarioWithStatus } from '@/lib/scenario-store';
 
 export async function GET() {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 
@@ -16,7 +16,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 

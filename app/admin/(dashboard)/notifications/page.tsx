@@ -1,3 +1,4 @@
+import { requireMainAdminPage } from '@/lib/admin-guard';
 import type { NotificationRecipient } from '@/generated/prisma/client';
 import { isMailConfigured } from '@/lib/notify';
 import { getPrisma } from '@/lib/prisma';
@@ -35,6 +36,7 @@ async function loadData(): Promise<{
 }
 
 export default async function AdminNotificationsPage() {
+    await requireMainAdminPage();
     const { recipients, smsSender, smsApiConfigured, error } = await loadData();
 
     return (

@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 
-import { requireAdminSession } from '@/lib/admin-guard';
+import { requireMainAdmin } from '@/lib/admin-guard';
 import { getPrisma } from '@/lib/prisma';
 
 const ALLOWED_STATUSES = ['신규', '연락중', '예약완료', '취소'];
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 
@@ -48,7 +48,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 

@@ -3,23 +3,26 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { BellIcon, ChatIcon, GridIcon, ListIcon, LogoutIcon, MapPinIcon, UserIcon } from '@/app/components/icons';
+import { BellIcon, ChatIcon, GridIcon, ListIcon, LogoutIcon, MapPinIcon, UserIcon, UsersIcon } from '@/app/components/icons';
+import type { AdminRole } from '@/lib/auth';
 
 const NAV_ITEMS = [
-    { href: '/admin', label: '대시보드', icon: GridIcon },
-    { href: '/admin/leads', label: '신청 데이터', icon: ListIcon },
-    { href: '/admin/content', label: '메인화면 컨텐츠', icon: MapPinIcon },
-    { href: '/admin/chatbot', label: '챗봇 시나리오', icon: ChatIcon },
-    { href: '/admin/notifications', label: '알림 설정', icon: BellIcon },
-    { href: '/admin/account', label: '계정 설정', icon: UserIcon },
+    { href: '/admin', label: '대시보드', icon: GridIcon, subAdmin: true },
+    { href: '/admin/leads', label: '신청 데이터', icon: ListIcon, subAdmin: true },
+    { href: '/admin/content', label: '메인화면 컨텐츠', icon: MapPinIcon, subAdmin: false },
+    { href: '/admin/chatbot', label: '챗봇 시나리오', icon: ChatIcon, subAdmin: false },
+    { href: '/admin/notifications', label: '알림 설정', icon: BellIcon, subAdmin: false },
+    { href: '/admin/sub-admins', label: '서브 관리자', icon: UsersIcon, subAdmin: false },
+    { href: '/admin/account', label: '계정 설정', icon: UserIcon, subAdmin: false },
 ];
 
-export function AdminNavLinks() {
+export function AdminNavLinks({ role }: { role: AdminRole }) {
     const pathname = usePathname();
+    const items = role === 'main' ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.subAdmin);
 
     return (
         <nav className="flex-1 space-y-1 px-3">
-            {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+            {items.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href;
                 return (
                     <Link

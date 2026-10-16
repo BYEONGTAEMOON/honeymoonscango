@@ -14,7 +14,15 @@ const STATUS_BADGE: Record<string, string> = {
     취소: 'bg-gray-100 text-gray-500',
 };
 
-export function LeadsTable({ initialLeads, initialBlockedIps }: { initialLeads: Lead[]; initialBlockedIps: string[] }) {
+export function LeadsTable({
+    initialLeads,
+    initialBlockedIps,
+    readOnly = false,
+}: {
+    initialLeads: Lead[];
+    initialBlockedIps: string[];
+    readOnly?: boolean;
+}) {
     const [leads, setLeads] = useState(initialLeads);
     const [savingId, setSavingId] = useState<number | null>(null);
     const [memoDraft, setMemoDraft] = useState<Record<number, string>>({});
@@ -139,68 +147,74 @@ export function LeadsTable({ initialLeads, initialBlockedIps }: { initialLeads: 
                             </div>
                         </div>
 
-                        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
-                            <select
-                                value={lead.status}
-                                disabled={isSaving}
-                                onChange={(e) => updateLead(lead.id, { status: e.target.value })}
-                                className="cursor-pointer rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {STATUS_OPTIONS.map((status) => (
-                                    <option key={status} value={status}>
-                                        {status}
-                                    </option>
-                                ))}
-                            </select>
+                        {readOnly ? (
+                            lead.memo && (
+                                <p className="mt-4 border-t border-gray-100 pt-4 text-xs text-gray-500">메모: {lead.memo}</p>
+                            )
+                        ) : (
+                            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
+                                <select
+                                    value={lead.status}
+                                    disabled={isSaving}
+                                    onChange={(e) => updateLead(lead.id, { status: e.target.value })}
+                                    className="cursor-pointer rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {STATUS_OPTIONS.map((status) => (
+                                        <option key={status} value={status}>
+                                            {status}
+                                        </option>
+                                    ))}
+                                </select>
 
-                            <input
-                                type="text"
-                                value={memo}
-                                disabled={isSaving}
-                                onChange={(e) => setMemoDraft((prev) => ({ ...prev, [lead.id]: e.target.value }))}
-                                placeholder="메모 (상담 내용 등)"
-                                className="min-w-[160px] flex-1 rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-700 outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                            />
+                                <input
+                                    type="text"
+                                    value={memo}
+                                    disabled={isSaving}
+                                    onChange={(e) => setMemoDraft((prev) => ({ ...prev, [lead.id]: e.target.value }))}
+                                    placeholder="메모 (상담 내용 등)"
+                                    className="min-w-[160px] flex-1 rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-700 outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                />
 
-                            <button
-                                type="button"
-                                disabled={isSaving}
-                                onClick={() => updateLead(lead.id, { memo })}
-                                className="cursor-pointer rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                메모 저장
-                            </button>
+                                <button
+                                    type="button"
+                                    disabled={isSaving}
+                                    onClick={() => updateLead(lead.id, { memo })}
+                                    className="cursor-pointer rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    메모 저장
+                                </button>
 
-                            <button
-                                type="button"
-                                disabled={isSaving}
-                                onClick={() => deleteLead(lead.id)}
-                                className="cursor-pointer rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                삭제
-                            </button>
+                                <button
+                                    type="button"
+                                    disabled={isSaving}
+                                    onClick={() => deleteLead(lead.id)}
+                                    className="cursor-pointer rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    삭제
+                                </button>
 
-                            {lead.ip &&
-                                (blockedIps.has(lead.ip) ? (
-                                    <button
-                                        type="button"
-                                        disabled={blockingIp === lead.ip}
-                                        onClick={() => toggleBlockIp(lead.ip!)}
-                                        className="cursor-pointer rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        IP 차단 해제
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        disabled={blockingIp === lead.ip}
-                                        onClick={() => toggleBlockIp(lead.ip!)}
-                                        className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        IP 차단
-                                    </button>
-                                ))}
-                        </div>
+                                {lead.ip &&
+                                    (blockedIps.has(lead.ip) ? (
+                                        <button
+                                            type="button"
+                                            disabled={blockingIp === lead.ip}
+                                            onClick={() => toggleBlockIp(lead.ip!)}
+                                            className="cursor-pointer rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            IP 차단 해제
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            disabled={blockingIp === lead.ip}
+                                            onClick={() => toggleBlockIp(lead.ip!)}
+                                            className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            IP 차단
+                                        </button>
+                                    ))}
+                            </div>
+                        )}
                     </div>
                 );
             })}

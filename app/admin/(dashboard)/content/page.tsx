@@ -1,3 +1,4 @@
+import { requireMainAdminPage } from '@/lib/admin-guard';
 import { getScenarioWithStatus } from '@/lib/scenario-store';
 
 import { ContentConfigForm } from './content-config-form';
@@ -5,6 +6,7 @@ import { ContentConfigForm } from './content-config-form';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminContentPage() {
+    await requireMainAdminPage();
     const { scenario, error } = await getScenarioWithStatus();
 
     return (

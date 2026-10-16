@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
-import { requireAdminSession } from '@/lib/admin-guard';
+import { requireMainAdmin } from '@/lib/admin-guard';
 import { getPrisma } from '@/lib/prisma';
 
 export async function GET() {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 
@@ -19,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 

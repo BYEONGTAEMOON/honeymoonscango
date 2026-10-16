@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 
-import { requireAdminSession } from '@/lib/admin-guard';
+import { requireMainAdmin } from '@/lib/admin-guard';
 import { hashPassword, verifyPassword } from '@/lib/password';
 import { getPrisma } from '@/lib/prisma';
 
 export async function GET() {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 
@@ -20,7 +20,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 
@@ -49,6 +49,10 @@ export async function PUT(request: Request) {
 
         if (!currentValid) {
             return NextResponse.json({ error: '현재 비밀번호가 올바르지 않습니다.' }, { status: 401 });
+        }
+
+        if (await prisma.subAdmin.findUnique({ where: { username: newUsername } })) {
+            return NextResponse.json({ error: '서브 관리자가 이미 쓰고 있는 아이디예요.' }, { status: 409 });
         }
 
         const passwordHash = hashPassword(newPassword);

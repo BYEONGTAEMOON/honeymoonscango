@@ -69,3 +69,14 @@ model NotificationSettings {
 
   @@map("notification_settings")
 }
+
+// Read-only staff logins: can see the dashboard and leads only. The main
+// admin is still the single AdminAccount row (or the env-var fallback).
+model SubAdmin {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("sub_admins")
+}

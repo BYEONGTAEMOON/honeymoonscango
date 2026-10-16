@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 
-import { ADMIN_SESSION_COOKIE, createSessionToken } from '@/lib/auth';
-import { verifyPassword } from '@/lib/password';
+import { ADMIN_SESSION_COOKIE, createSessionToken, type AdminRole } from '@/lib/auth';
+import { hashPassword, verifyPassword } from '@/lib/password';
 import { getPrisma } from '@/lib/prisma';
 import type { AdminAccount } from '@/generated/prisma/client';
+
+// Verified against when no sub-admin matches, so an unknown username costs the
+// same scrypt time as a real one and can't be told apart by response time.
+const DUMMY_HASH = hashPassword('no-such-sub-admin');
 
 export async function POST(request: Request) {
     let body: { username?: string; password?: string };
@@ -61,11 +65,27 @@ export async function POST(request: Request) {
         resolvedUsername = envUsername;
     }
 
-    if (!authenticated) {
+    let role: AdminRole | null = authenticated ? 'main' : null;
+
+    if (!role) {
+        let sub: { username: string; passwordHash: string } | null = null;
+        try {
+            sub = await getPrisma().subAdmin.findUnique({ where: { username } });
+        } catch {
+            sub = null;
+        }
+        const passwordMatches = verifyPassword(password, sub?.passwordHash ?? DUMMY_HASH);
+        if (sub && passwordMatches) {
+            role = 'sub';
+            resolvedUsername = sub.username;
+        }
+    }
+
+    if (!role) {
         return NextResponse.json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 });
     }
 
-    const token = await createSessionToken(resolvedUsername);
+    const token = await createSessionToken(resolvedUsername, role);
     const response = NextResponse.json({ ok: true });
     response.cookies.set(ADMIN_SESSION_COOKIE, token, {
         httpOnly: true,

@@ -1,3 +1,4 @@
+import { requireMainAdminPage } from '@/lib/admin-guard';
 import { getPrisma } from '@/lib/prisma';
 
 import { AccountForm } from './account-form';
@@ -15,6 +16,7 @@ async function loadUsername(): Promise<string> {
 }
 
 export default async function AdminAccountPage() {
+    await requireMainAdminPage();
     const currentUsername = await loadUsername();
 
     return (

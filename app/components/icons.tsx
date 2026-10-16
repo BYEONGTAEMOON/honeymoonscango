@@ -219,6 +219,17 @@ export function UserIcon({ className }: IconProps) {
     );
 }
 
+export function UsersIcon({ className }: IconProps) {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" className={className}>
+            <circle cx="9" cy="8.5" r="3" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M3 19.5c.9-3.2 3.4-5 6-5s5.1 1.8 6 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <circle cx="16.5" cy="7.5" r="2.5" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M17 13c2.1.3 3.5 1.8 4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+    );
+}
+
 export function ArrowRightIcon({ className }: IconProps) {
     return (
         <svg viewBox="0 0 24 24" fill="none" className={className}>

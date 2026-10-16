@@ -2,7 +2,7 @@ import { dangerouslyDeleteBySrcImage } from '@vercel/functions';
 import { NextResponse } from 'next/server';
 
 import { safeHoneyCards } from '@/app/components/safe-honey-section';
-import { requireAdminSession } from '@/lib/admin-guard';
+import { requireMainAdmin } from '@/lib/admin-guard';
 import { getScenario } from '@/lib/scenario-store';
 
 // Vercel's purge API accepts at most 16 source images per call.
@@ -13,7 +13,7 @@ const BATCH_SIZE = 16;
 // showing the old version. This deletes every cached transformation of every
 // image the site uses so the next request re-fetches the originals.
 export async function POST() {
-    if (!(await requireAdminSession())) {
+    if (!(await requireMainAdmin())) {
         return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
 
