@@ -9,6 +9,7 @@ export type ChatbotScenario = {
     monthRangeEnd: string;
     destinations: string[];
     destinationQuestion: string;
+    prefillDestinationMessage: string;
     budgets: string[];
     budgetQuestion: string;
     durations: string[];
@@ -410,6 +411,8 @@ export const DEFAULT_CHATBOT_SCENARIO: ChatbotScenario = {
     destinations: ['발리', '코사무이', '푸켓', '유럽', '몰디브', '하와이', '칸쿤', '모리셔스', '호주', '두바이', '괌', '세부'],
     destinationQuestion:
         '{value} 예정으로 항공 잔여좌석과 견적 조회 도와드릴게요. ✨\n\n희망 목적지는 어느 곳으로 생각하고 계세요? 📍\n목적지마다 항공 스케줄과 리조트 견적대가 달라요.\n두 분이 원하시는 여행 스타일 기준으로 골라도 좋아요.',
+    prefillDestinationMessage:
+        '{value} 예정으로 항공 잔여좌석과 견적 조회 도와드릴게요. ✨\n\n방금 보고 계셨던 {destination} 여행으로 이어서 진행할게요. 📍',
     budgets: ['100~200만원', '200~300만원', '300~500만원', '500만원 이상'],
     budgetQuestion:
         '예상 예산은 어느 정도로 보세요? 💰\n예산은 총 견적을 좌우하는 가장 큰 변수예요.\n정확하지 않아도 괜찮으니 대략 범위로 골라주세요.',

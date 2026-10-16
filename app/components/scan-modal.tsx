@@ -173,7 +173,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                     {
                         id: nextId(),
                         type: 'bot',
-                        text: `${value} 예정으로 항공 잔여좌석과 견적 조회 도와드릴게요. ✨\n\n방금 보고 계셨던 ${prefillDestination} 여행으로 이어서 진행할게요. 📍`,
+                        text: applyTemplate(scenario.prefillDestinationMessage, { value, destination: prefillDestination }),
                     },
                     { id: nextId(), type: 'user', text: prefillDestination },
                     { id: nextId(), type: 'bot', text: scenario.budgetQuestion },

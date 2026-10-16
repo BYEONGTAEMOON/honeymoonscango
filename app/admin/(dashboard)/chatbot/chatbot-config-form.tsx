@@ -241,6 +241,13 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
             <SectionCard title="2. 목적지" description="{value} 자리에 방금 답한 출발월이 자동으로 들어가요.">
                 <Field label="목적지 질문" value={scenario.destinationQuestion} onChange={(v) => set('destinationQuestion', v)} rows={4} />
                 <StringListEditor label="목적지 선택지" items={scenario.destinations} onChange={(v) => set('destinations', v)} />
+                <Field
+                    label="여행지 카드에서 열었을 때 안내"
+                    hint="여행지·인기 숙소 카드의 버튼으로 열면 목적지 질문 대신 이 문구가 나와요. {value}=출발월, {destination}=목적지"
+                    value={scenario.prefillDestinationMessage}
+                    onChange={(v) => set('prefillDestinationMessage', v)}
+                    rows={3}
+                />
             </SectionCard>
 
             <SectionCard title="3. 예산">

@@ -33,7 +33,7 @@ export function DestinationSection({ id, destination, tagline, resorts }: Destin
 
             <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
                 {resorts.map((resort) => (
-                    <div key={resort.slug} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                    <div key={resort.slug} className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
                         <div className="relative aspect-[9/4]">
                             <Image
                                 src={resort.image}
@@ -47,7 +47,7 @@ export function DestinationSection({ id, destination, tagline, resorts }: Destin
                             </span>
                         </div>
 
-                        <div className="flex items-center justify-between gap-3 p-5 pt-7">
+                        <div className="flex flex-1 items-center justify-between gap-3 p-5 pt-7">
                             <div className="min-w-0 flex-1">
                                 <h3 className="text-base font-bold text-gray-900">{resort.name}</h3>
                                 <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-500">{resort.description}</p>

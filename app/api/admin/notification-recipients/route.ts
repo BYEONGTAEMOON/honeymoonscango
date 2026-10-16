@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-guard';
+import { isValidMobile, normalizePhone } from '@/lib/notify';
 import { getPrisma } from '@/lib/prisma';
 
 const ALLOWED_TYPES = ['email', 'sms'];
@@ -33,9 +34,17 @@ export async function POST(request: Request) {
     }
 
     const type = body.type;
-    const value = body.value?.trim();
-    if (!type || !ALLOWED_TYPES.includes(type) || !value) {
+    const raw = body.value?.trim();
+    if (!type || !ALLOWED_TYPES.includes(type) || !raw) {
         return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
+    }
+
+    const value = type === 'sms' ? normalizePhone(raw) : raw.toLowerCase();
+    if (type === 'sms' && !isValidMobile(value)) {
+        return NextResponse.json({ error: '휴대폰 번호 형식이 올바르지 않아요. (예: 01012345678)' }, { status: 400 });
+    }
+    if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return NextResponse.json({ error: '이메일 주소 형식이 올바르지 않아요.' }, { status: 400 });
     }
 
     try {

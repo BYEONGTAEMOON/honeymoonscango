@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 import { Resend } from 'resend';
 import { SolapiMessageService } from 'solapi';
 
@@ -66,13 +68,45 @@ export async function sendEmails(to: string[], lines: string[], subject = '[허�
     if (error) throw new Error(typeof error === 'object' && 'message' in error ? String(error.message) : '이메일 발송 실패');
 }
 
+// SOLAPI only accepts bare digits ("01012345678"); recipients saved before
+// input was normalized may still contain hyphens or spaces.
+export function normalizePhone(value: string): string {
+    return value.replace(/\D/g, '');
+}
+
+export function isValidMobile(value: string): boolean {
+    return /^01[016789]\d{7,8}$/.test(value);
+}
+
+// Caller IDs registered (and verified) on the SOLAPI account — sends from any
+// other number are rejected by SOLAPI. Returns null when the API can't be asked.
+export async function getActiveSenderIds(): Promise<string[] | null> {
+    const { SOLAPI_API_KEY, SOLAPI_API_SECRET } = process.env;
+    if (!SOLAPI_API_KEY || !SOLAPI_API_SECRET) return null;
+
+    const date = new Date().toISOString();
+    const salt = crypto.randomBytes(16).toString('hex');
+    const signature = crypto.createHmac('sha256', SOLAPI_API_SECRET).update(date + salt).digest('hex');
+    try {
+        const res = await fetch('https://api.solapi.com/senderid/v1/numbers/active', {
+            headers: { Authorization: `HMAC-SHA256 apiKey=${SOLAPI_API_KEY}, date=${date}, salt=${salt}, signature=${signature}` },
+        });
+        if (!res.ok) return null;
+        const ids: unknown = await res.json();
+        return Array.isArray(ids) ? ids.map(String) : null;
+    } catch {
+        return null;
+    }
+}
+
 export async function sendSmsMessages(to: string[], lines: string[]) {
     const client = getSolapiClient();
     const sender = await getSmsSender();
     if (!client || !sender || to.length === 0) return;
 
     const text = `[허니문스캔GO]\n${lines.join('\n')}`;
-    const results = await Promise.allSettled(to.map((phone) => client.send({ to: phone, from: sender, text })));
+    const from = normalizePhone(sender);
+    const results = await Promise.allSettled(to.map((phone) => client.send({ to: normalizePhone(phone), from, text })));
     const failure = results.find((r): r is PromiseRejectedResult => r.status === 'rejected');
     if (failure) throw failure.reason;
 }

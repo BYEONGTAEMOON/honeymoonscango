@@ -52,6 +52,7 @@ function RecipientList({
 
     return (
         <div className="space-y-3">
+            <span className="text-xs font-semibold text-gray-600">{label} 받을 곳 (수신자)</span>
             <div className="space-y-2">
                 {recipients.length === 0 && <p className="text-xs text-gray-400">등록된 {label} 수신자가 없어요.</p>}
                 {recipients.map((recipient) => (
@@ -85,7 +86,7 @@ function RecipientList({
                     type="button"
                     disabled={busy}
                     onClick={handleAdd}
-                    className="cursor-pointer rounded-lg border border-dashed border-gray-300 px-3 py-2 text-xs font-semibold text-gray-500 hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-50"
+                    className="cursor-pointer rounded-lg border border-brand px-3 py-2 text-xs font-semibold text-brand hover:bg-brand-light disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     + 추가
                 </button>
@@ -248,7 +249,7 @@ export function NotificationsForm({
 
                 <div>
                     <span className="text-xs font-semibold text-gray-600">
-                        발신번호 <span className="font-normal text-gray-400">(SOLAPI에 사전 등록·인증된 번호만 가능)</span>
+                        보내는 번호 (발신번호) <span className="font-normal text-gray-400">(SOLAPI에 사전 등록·인증된 번호만 가능)</span>
                     </span>
                     <div className="mt-1.5 flex items-center gap-2">
                         <input
@@ -277,7 +278,7 @@ export function NotificationsForm({
                 <RecipientList
                     type="sms"
                     label="문자"
-                    placeholder="예: 01012345678"
+                    placeholder="알림 받을 휴대폰 번호 (예: 01012345678)"
                     recipients={smsRecipients}
                     onAdd={(value) => addRecipient('sms', value)}
                     onRemove={removeRecipient}

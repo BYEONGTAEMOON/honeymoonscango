@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-guard';
+import { getActiveSenderIds, normalizePhone } from '@/lib/notify';
 import { getPrisma } from '@/lib/prisma';
 
 export async function PUT(request: Request) {
@@ -15,7 +16,21 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
     }
 
-    const smsSender = body.smsSender?.trim().replace(/[^0-9]/g, '') || null;
+    const smsSender = normalizePhone(body.smsSender ?? '') || null;
+
+    if (smsSender) {
+        if (!/^0\d{8,10}$/.test(smsSender)) {
+            return NextResponse.json({ error: '발신번호 형식이 올바르지 않아요. (예: 01012345678)' }, { status: 400 });
+        }
+        const registered = await getActiveSenderIds();
+        if (registered && !registered.includes(smsSender)) {
+            const list = registered.length > 0 ? registered.join(', ') : '없음';
+            return NextResponse.json(
+                { error: `SOLAPI에 등록된 발신번호가 아니에요. 등록된 번호: ${list}` },
+                { status: 400 },
+            );
+        }
+    }
 
     try {
         const prisma = getPrisma();
