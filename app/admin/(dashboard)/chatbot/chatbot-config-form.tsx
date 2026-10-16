@@ -239,14 +239,20 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
             </SectionCard>
 
             <SectionCard title="2. 목적지" description="{value} 자리에 방금 답한 출발월이 자동으로 들어가요.">
-                <Field label="목적지 질문" value={scenario.destinationQuestion} onChange={(v) => set('destinationQuestion', v)} rows={4} />
+                <Field
+                    label="목적지 질문"
+                    hint="첫 문단(빈 줄 전까지)은 리조트·여행지 카드 버튼으로 열었을 때도 똑같이 나와요."
+                    value={scenario.destinationQuestion}
+                    onChange={(v) => set('destinationQuestion', v)}
+                    rows={5}
+                />
                 <StringListEditor label="목적지 선택지" items={scenario.destinations} onChange={(v) => set('destinations', v)} />
                 <Field
-                    label="여행지 카드에서 열었을 때 안내"
-                    hint="여행지·인기 숙소 카드의 버튼으로 열면 목적지 질문 대신 이 문구가 나와요. {value}=출발월, {destination}=목적지"
-                    value={scenario.prefillDestinationMessage}
-                    onChange={(v) => set('prefillDestinationMessage', v)}
-                    rows={3}
+                    label="카드 버튼으로 열었을 때 이어지는 안내"
+                    hint="리조트·여행지 카드 버튼으로 열면 목적지 질문의 첫 문단 다음에 이 문구가 나오고, 목적지 질문은 건너뛰어요. {destination}=카드의 목적지"
+                    value={scenario.prefillContinueMessage}
+                    onChange={(v) => set('prefillContinueMessage', v)}
+                    rows={2}
                 />
             </SectionCard>
 
@@ -263,6 +269,13 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
             <SectionCard title="5. 리조트 추천 · 연락처" description="{destination} 자리에 선택한 목적지가 자동으로 들어가요.">
                 <Field label="리조트 후보 안내" value={scenario.resortPickerIntro} onChange={(v) => set('resortPickerIntro', v)} rows={4} />
                 <Field label="리조트 선택 후 안내" value={scenario.afterResortMessage} onChange={(v) => set('afterResortMessage', v)} rows={2} />
+                <Field
+                    label="리조트 후보가 없는 목적지 안내"
+                    hint="등록된 리조트가 없는 목적지(예: 기타지역)를 고르면 리조트 선택 대신 이 문구 + '리조트 선택 후 안내'가 나와요. {destination}=목적지"
+                    value={scenario.noResortMessage}
+                    onChange={(v) => set('noResortMessage', v)}
+                    rows={2}
+                />
                 <TextItemListEditor label="무료로 받는 자료 목록" items={scenario.freeItems} onChange={(v) => set('freeItems', v)} />
                 <Field label="휴대폰 번호 질문" value={scenario.phoneQuestion} onChange={(v) => set('phoneQuestion', v)} rows={2} />
                 <Field label="개인정보 안내" value={scenario.privacyNotice} onChange={(v) => set('privacyNotice', v)} rows={2} />

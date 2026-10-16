@@ -96,6 +96,13 @@ function buildMonthRange(startValue: string, endValue: string): string[] {
 // for "none of these, help me find something else" rather than more catalog data.
 const OTHER_RESORT_OPTION = '그 외 호텔 및 리조트';
 
+// The opening paragraph of the destination question ("{value} 예정으로 …") is
+// shared with the card-button flow, so editing it once updates every button.
+function firstParagraph(text: string): string {
+    const parts = text.split(/\n\s*\n/);
+    return parts.length > 1 ? parts[0] : '';
+}
+
 let idCounter = 0;
 function nextId() {
     idCounter += 1;
@@ -126,6 +133,10 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
     const appliedPrefillRef = useRef(false);
     const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
     const leadDataRef = useRef<{ month?: string; destination?: string; budget?: string; duration?: string; region?: string; phone?: string }>({});
+    // A card's country may not be one of the chatbot's destinations (e.g. an
+    // admin-entered "태국"); in that case ask for the destination normally.
+    const activePrefill =
+        prefillDestination && scenario.destinations.includes(prefillDestination) ? prefillDestination : undefined;
 
     useEffect(() => {
         const pendingTimeouts = timeoutsRef.current;
@@ -165,17 +176,22 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
         appendNow({ id: nextId(), type: 'user', text: value });
         leadDataRef.current.month = value;
 
-        if (prefillDestination && !appliedPrefillRef.current) {
+        if (activePrefill && !appliedPrefillRef.current) {
             appliedPrefillRef.current = true;
-            leadDataRef.current.destination = prefillDestination;
+            leadDataRef.current.destination = activePrefill;
             appendBotSequence(
                 [
                     {
                         id: nextId(),
                         type: 'bot',
-                        text: applyTemplate(scenario.prefillDestinationMessage, { value, destination: prefillDestination }),
+                        text: [
+                            firstParagraph(applyTemplate(scenario.destinationQuestion, { value })),
+                            applyTemplate(scenario.prefillContinueMessage, { value, destination: activePrefill }),
+                        ]
+                            .filter(Boolean)
+                            .join('\n\n'),
                     },
-                    { id: nextId(), type: 'user', text: prefillDestination },
+                    { id: nextId(), type: 'user', text: activePrefill },
                     { id: nextId(), type: 'bot', text: scenario.budgetQuestion },
                     { id: nextId(), type: 'options', kind: 'budget', options: scenario.budgets },
                 ],
@@ -221,7 +237,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
         appendNow({ id: nextId(), type: 'user', text: value });
         leadDataRef.current.duration = value;
 
-        const destination = prefillDestination ?? findAnsweredDestination(entries);
+        const destination = activePrefill ?? findAnsweredDestination(entries);
         const hasResortCandidates = (scenario.resortsByDestination[destination] ?? []).length > 0;
 
         // Both the destination list and the resort catalog are admin-editable
@@ -235,7 +251,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                     {
                         id: nextId(),
                         type: 'bot',
-                        text: `${destination}은(는) 전담 컨설턴트가 직접 맞춤 리조트를 찾아드리는 지역이에요. ${scenario.afterResortMessage}`,
+                        text: `${applyTemplate(scenario.noResortMessage, { destination })} ${scenario.afterResortMessage}`,
                     },
                     { id: nextId(), type: 'checklist' },
                     { id: nextId(), type: 'bot', text: scenario.phoneQuestion },
