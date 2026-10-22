@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     verification: {
         other: {
             'naver-site-verification': 'd17bdb1983d1664e42b6ec7016a3050787246edc',
+            'facebook-domain-verification': 'zlerkd7ktw5ormwmt7h1f133q5blcv',
         },
     },
     alternates: {
