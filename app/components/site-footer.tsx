@@ -14,8 +14,8 @@ export function SiteFooter() {
 
                     <div className="mt-4 space-y-1 text-xs leading-relaxed text-gray-500">
                         <p>
-                            상호명 : (주)반하다컨설팅 | 대표이사 이호진 |
-                            부산광역시 부산진구 서전로 8 5층,6층 | 연락처 :
+                            상호명 (주)반하다컨설팅 | 대표이사 이호진 | 주소
+                            부산광역시 부산진구 서전로 8 5층,6층 | 연락처
                             010-8827-0696
                         </p>
                         <p>
