@@ -6,16 +6,19 @@ const travelAgency = {
     '@context': 'https://schema.org',
     '@type': 'TravelAgency',
     name: '반하나투어',
-    alternateName: '허니문스캔GO',
+    legalName: '(주)반하다컨설팅',
+    alternateName: '허니문 스캔GO',
     url: SITE_URL,
-    description: '발리, 몰디브, 태국, 유럽, 하와이, 모리셔스 등 허니문 신혼여행 전문 여행사',
+    description:
+        '발리, 몰디브, 태국, 유럽, 하와이, 모리셔스 등 허니문 신혼여행 전문 여행사',
     address: {
         '@type': 'PostalAddress',
-        streetAddress: '자유평화로 11 W웨딩시티 2층',
+        streetAddress: '서전로 8 5층, 6층',
         addressLocality: '부산진구',
         addressRegion: '부산광역시',
         addressCountry: 'KR',
     },
+    telephone: '010-8827-0696',
     areaServed: ['부산', '울산', '대구'],
 };
 
@@ -30,8 +33,16 @@ const website = {
 export function StructuredData() {
     return (
         <>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(travelAgency) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(travelAgency),
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }}
+            />
         </>
     );
 }

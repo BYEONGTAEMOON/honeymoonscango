@@ -6,7 +6,7 @@ export function SiteFooter() {
             <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-start md:justify-between">
                 <div>
                     <p className="text-lg font-extrabold text-gray-900">
-                        허니문<span className="text-brand">스캔GO</span>{' '}
+                        허니문<span className="text-brand"> 스캔GO</span>{' '}
                         <span className="text-sm font-normal text-gray-400">
                             부산 울산 대구
                         </span>
@@ -14,8 +14,9 @@ export function SiteFooter() {
 
                     <div className="mt-4 space-y-1 text-xs leading-relaxed text-gray-500">
                         <p>
-                            대표이사 이호진 | 부산 부산진구 자유평화로 11
-                            W웨딩시티 2층
+                            상호명 : (주)반하다컨설팅 | 대표이사 이호진 |
+                            부산광역시 부산진구 서전로 8 5층,6층 | 연락처 :
+                            010-8827-0696
                         </p>
                         <p>
                             사업자등록번호 199-86-00338 | 관광사업자등록증번호

@@ -43,7 +43,9 @@ function getSolapiClient() {
 
 async function getSmsSender(): Promise<string | null> {
     const prisma = getPrisma();
-    const settings = await prisma.notificationSettings.findUnique({ where: { id: 1 } });
+    const settings = await prisma.notificationSettings.findUnique({
+        where: { id: 1 },
+    });
     return settings?.smsSender ?? null;
 }
 
@@ -59,13 +61,27 @@ export async function isSmsConfigured(): Promise<boolean> {
 // Resend's sandbox sender (onboarding@resend.dev) only delivers to the email
 // the Resend account itself is registered with — verify a custom domain in
 // Resend to notify arbitrary recipient addresses.
-export async function sendEmails(to: string[], lines: string[], subject = '[허니문스캔GO] 새 신청이 접수됐어요') {
+export async function sendEmails(
+    to: string[],
+    lines: string[],
+    subject = '[허니문 스캔GO] 새 신청이 접수됐어요',
+) {
     const resend = getResendClient();
     if (!resend || to.length === 0) return;
 
     const from = process.env.RESEND_FROM || 'onboarding@resend.dev';
-    const { error } = await resend.emails.send({ from, to, subject, text: lines.join('\n') });
-    if (error) throw new Error(typeof error === 'object' && 'message' in error ? String(error.message) : '이메일 발송 실패');
+    const { error } = await resend.emails.send({
+        from,
+        to,
+        subject,
+        text: lines.join('\n'),
+    });
+    if (error)
+        throw new Error(
+            typeof error === 'object' && 'message' in error
+                ? String(error.message)
+                : '이메일 발송 실패',
+        );
 }
 
 // SOLAPI only accepts bare digits ("01012345678"); recipients saved before
@@ -86,11 +102,19 @@ export async function getActiveSenderIds(): Promise<string[] | null> {
 
     const date = new Date().toISOString();
     const salt = crypto.randomBytes(16).toString('hex');
-    const signature = crypto.createHmac('sha256', SOLAPI_API_SECRET).update(date + salt).digest('hex');
+    const signature = crypto
+        .createHmac('sha256', SOLAPI_API_SECRET)
+        .update(date + salt)
+        .digest('hex');
     try {
-        const res = await fetch('https://api.solapi.com/senderid/v1/numbers/active', {
-            headers: { Authorization: `HMAC-SHA256 apiKey=${SOLAPI_API_KEY}, date=${date}, salt=${salt}, signature=${signature}` },
-        });
+        const res = await fetch(
+            'https://api.solapi.com/senderid/v1/numbers/active',
+            {
+                headers: {
+                    Authorization: `HMAC-SHA256 apiKey=${SOLAPI_API_KEY}, date=${date}, salt=${salt}, signature=${signature}`,
+                },
+            },
+        );
         if (!res.ok) return null;
         const ids: unknown = await res.json();
         return Array.isArray(ids) ? ids.map(String) : null;
@@ -104,10 +128,16 @@ export async function sendSmsMessages(to: string[], lines: string[]) {
     const sender = await getSmsSender();
     if (!client || !sender || to.length === 0) return;
 
-    const text = `[허니문스캔GO]\n${lines.join('\n')}`;
+    const text = `[허니문 스캔GO]\n${lines.join('\n')}`;
     const from = normalizePhone(sender);
-    const results = await Promise.allSettled(to.map((phone) => client.send({ to: normalizePhone(phone), from, text })));
-    const failure = results.find((r): r is PromiseRejectedResult => r.status === 'rejected');
+    const results = await Promise.allSettled(
+        to.map((phone) =>
+            client.send({ to: normalizePhone(phone), from, text }),
+        ),
+    );
+    const failure = results.find(
+        (r): r is PromiseRejectedResult => r.status === 'rejected',
+    );
     if (failure) throw failure.reason;
 }
 
@@ -117,14 +147,22 @@ export async function notifyNewLead(lead: NewLeadInfo): Promise<void> {
     try {
         const prisma = getPrisma();
         const recipients = await prisma.notificationRecipient.findMany();
-        const emails = recipients.filter((r) => r.type === 'email').map((r) => r.value);
-        const phones = recipients.filter((r) => r.type === 'sms').map((r) => r.value);
+        const emails = recipients
+            .filter((r) => r.type === 'email')
+            .map((r) => r.value);
+        const phones = recipients
+            .filter((r) => r.type === 'sms')
+            .map((r) => r.value);
         if (emails.length === 0 && phones.length === 0) return;
 
         const lines = buildSummaryLines(lead);
-        const results = await Promise.allSettled([sendEmails(emails, lines), sendSmsMessages(phones, lines)]);
+        const results = await Promise.allSettled([
+            sendEmails(emails, lines),
+            sendSmsMessages(phones, lines),
+        ]);
         for (const result of results) {
-            if (result.status === 'rejected') console.error('Lead notification failed', result.reason);
+            if (result.status === 'rejected')
+                console.error('Lead notification failed', result.reason);
         }
     } catch (error) {
         console.error('notifyNewLead failed', error);
