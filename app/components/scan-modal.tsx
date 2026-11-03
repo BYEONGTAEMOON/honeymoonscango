@@ -385,7 +385,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
 
             {/* On mobile this behaves like a real chat widget sheet — anchored to
                 the bottom with a visible gap above, not a full-screen takeover. */}
-            <div className="relative flex h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl bg-gray-900 text-white md:h-[85vh] md:max-w-xl md:rounded-3xl">
+            <div className="relative flex h-[88dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-gray-900 text-white md:h-[85vh] md:max-w-xl md:rounded-3xl">
                 <div className="flex items-center justify-between border-b border-white/10 p-4">
                     <div className="flex items-center gap-3">
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-dark">
@@ -647,6 +647,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
 
                 <div className="border-t border-white/10 p-3">
                     <div className="flex items-center gap-2">
+                        {/* 16px on mobile: iOS Safari zooms into any input with smaller text, pushing the buttons off-screen. */}
                         <input
                             type="text"
                             inputMode={step === 'contact' ? 'numeric' : 'text'}
@@ -666,7 +667,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                 if (e.key === 'Enter') handleFreeformSend();
                             }}
                             placeholder={placeholder}
-                            className="flex-1 rounded-full bg-white/10 px-4 py-3 text-sm text-white placeholder-white/40 outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                            className="flex-1 rounded-full bg-white/10 px-4 py-3 text-base text-white placeholder-white/40 outline-none disabled:cursor-not-allowed disabled:opacity-40 md:text-sm"
                         />
                         <button
                             type="button"
