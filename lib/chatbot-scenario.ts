@@ -21,7 +21,8 @@ export type ChatbotSections = {
     destination: boolean;
     budget: boolean;
     duration: boolean;
-    resortContact: boolean;
+    resort: boolean;
+    contact: boolean;
     regionName: boolean;
     completion: boolean;
 };
@@ -492,7 +493,8 @@ export const DEFAULT_CHATBOT_SCENARIO: ChatbotScenario = {
         destination: true,
         budget: true,
         duration: true,
-        resortContact: true,
+        resort: true,
+        contact: true,
         regionName: true,
         completion: true,
     },

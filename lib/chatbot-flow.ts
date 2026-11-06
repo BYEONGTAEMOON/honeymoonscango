@@ -24,8 +24,8 @@ const STEP_ORDER: { step: Step; section: keyof ChatbotSections | null }[] = [
     { step: 'destination', section: 'destination' },
     { step: 'budget', section: 'budget' },
     { step: 'duration', section: 'duration' },
-    { step: 'resorts', section: 'resortContact' },
-    { step: 'contact', section: 'resortContact' },
+    { step: 'resorts', section: 'resort' },
+    { step: 'contact', section: 'contact' },
     { step: 'region', section: 'regionName' },
     { step: 'name', section: 'regionName' },
     { step: 'done', section: null },
@@ -144,7 +144,13 @@ export function planNext(scenario: ChatbotScenario, from: Step | null, ctx: Flow
                 }
                 // No destination asked, or one with no resorts yet: an empty
                 // picker would be a dead end, so go straight to contact info.
-                if (destination) noResortNote = applyTemplate(scenario.noResortMessage, { destination });
+                if (destination) {
+                    const note = applyTemplate(scenario.noResortMessage, { destination });
+                    // Normally joined to the contact step's opening line; on its
+                    // own bubble when that step is switched off.
+                    if (sections.contact) noResortNote = note;
+                    else entries.push({ type: 'bot', text: note });
+                }
                 continue;
 
             case 'contact':

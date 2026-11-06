@@ -226,7 +226,7 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
         };
     }
 
-    const noContact = !scenario.sections.resortContact && !scenario.sections.regionName;
+    const noContact = !scenario.sections.contact && !scenario.sections.regionName;
 
     async function handleSave() {
         setSaving(true);
@@ -266,12 +266,12 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
         <div className="space-y-6 pb-24">
             {noContact ? (
                 <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    5번과 6번을 함께 끌 수 없어요. 둘 다 끄면 고객 연락처를 받을 수 없어서 저장되지 않습니다.
+                    6번과 7번을 함께 끌 수 없어요. 둘 다 끄면 고객 연락처를 받을 수 없어서 저장되지 않습니다.
                 </div>
             ) : (
-                !scenario.sections.resortContact && (
+                !scenario.sections.contact && (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                        5번을 끄면 리조트 추천과 함께 휴대폰 번호도 받지 않아요. 신청 데이터에 이름만 남아 고객에게 연락하기 어렵습니다.
+                        6번을 끄면 휴대폰 번호를 받지 않아요. 신청 데이터에 이름만 남아 고객에게 연락하기 어렵습니다.
                     </div>
                 )
             )}
@@ -312,28 +312,31 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
                 <StringListEditor label="여행 기간 선택지" items={scenario.durations} onChange={(v) => set('durations', v)} />
             </SectionCard>
 
-            <SectionCard {...sectionProps('resortContact')} title="5. 리조트 추천 · 연락처" description="{destination} 자리에 선택한 목적지가 자동으로 들어가요.">
+            <SectionCard {...sectionProps('resort')} title="5. 리조트 추천" description="{destination} 자리에 선택한 목적지가 자동으로 들어가요.">
                 <Field label="리조트 후보 안내" value={scenario.resortPickerIntro} onChange={(v) => set('resortPickerIntro', v)} rows={4} />
-                <Field label="리조트 선택 후 안내" value={scenario.afterResortMessage} onChange={(v) => set('afterResortMessage', v)} rows={2} />
                 <Field
                     label="리조트 후보가 없는 목적지 안내"
-                    hint="등록된 리조트가 없는 목적지(예: 기타지역)를 고르면 리조트 선택 대신 이 문구 + '리조트 선택 후 안내'가 나와요. {destination}=목적지"
+                    hint="등록된 리조트가 없는 목적지(예: 기타지역)를 고르면 리조트 선택 대신 이 문구가 나와요. {destination}=목적지"
                     value={scenario.noResortMessage}
                     onChange={(v) => set('noResortMessage', v)}
                     rows={2}
                 />
+            </SectionCard>
+
+            <SectionCard {...sectionProps('contact')} title="6. 연락처" description="무료 자료 안내와 휴대폰 번호를 받는 단계예요.">
+                <Field label="자료 안내 문구" value={scenario.afterResortMessage} onChange={(v) => set('afterResortMessage', v)} rows={2} />
                 <TextItemListEditor label="무료로 받는 자료 목록" items={scenario.freeItems} onChange={(v) => set('freeItems', v)} />
                 <Field label="휴대폰 번호 질문" value={scenario.phoneQuestion} onChange={(v) => set('phoneQuestion', v)} rows={2} />
                 <Field label="개인정보 안내" value={scenario.privacyNotice} onChange={(v) => set('privacyNotice', v)} rows={2} />
             </SectionCard>
 
-            <SectionCard {...sectionProps('regionName')} title="6. 거주 지역 · 이름">
+            <SectionCard {...sectionProps('regionName')} title="7. 거주 지역 · 이름">
                 <Field label="거주 지역 질문" value={scenario.regionQuestion} onChange={(v) => set('regionQuestion', v)} rows={2} />
                 <StringListEditor label="거주 지역 선택지" items={scenario.regions} onChange={(v) => set('regions', v)} />
                 <Field label="이름 질문" value={scenario.nameQuestion} onChange={(v) => set('nameQuestion', v)} rows={2} />
             </SectionCard>
 
-            <SectionCard {...sectionProps('completion')} title="7. 완료 화면">
+            <SectionCard {...sectionProps('completion')} title="8. 완료 화면">
                 <Field label="완료 안내 문구" value={scenario.completionSubtitle} onChange={(v) => set('completionSubtitle', v)} rows={2} />
                 <TagItemListEditor label="추가 혜택 목록" items={scenario.extraBenefits} onChange={(v) => set('extraBenefits', v)} />
                 <Field label="마무리 인사" value={scenario.completionClosing} onChange={(v) => set('completionClosing', v)} rows={5} />
