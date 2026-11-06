@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { DEFAULT_CHATBOT_SCENARIO, type ChatbotScenario, type TagItem, type TextItem } from '@/lib/chatbot-scenario';
+import { DEFAULT_CHATBOT_SCENARIO, type ChatbotScenario, type ChatbotSections, type TagItem, type TextItem } from '@/lib/chatbot-scenario';
 
 import { SectionCard } from '../section-card';
 
@@ -185,6 +185,30 @@ function TagItemListEditor({ label, items, onChange }: { label: string; items: T
     );
 }
 
+function SectionToggle({ enabled, onChange }: { enabled: boolean; onChange: (enabled: boolean) => void }) {
+    const options = [
+        { value: true, label: '사용' },
+        { value: false, label: '사용 안함' },
+    ];
+    return (
+        <div className="flex shrink-0 rounded-lg border border-gray-200 p-0.5">
+            {options.map(({ value, label }) => (
+                <button
+                    key={label}
+                    type="button"
+                    aria-pressed={enabled === value}
+                    onClick={() => onChange(value)}
+                    className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        enabled === value ? (value ? 'bg-brand text-white' : 'bg-gray-700 text-white') : 'text-gray-500 hover:bg-gray-50'
+                    }`}
+                >
+                    {label}
+                </button>
+            ))}
+        </div>
+    );
+}
+
 export function ChatbotConfigForm({ initialScenario }: { initialScenario: ChatbotScenario }) {
     const [scenario, setScenario] = useState<ChatbotScenario>(initialScenario);
     const [saving, setSaving] = useState(false);
@@ -193,6 +217,16 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
     function set<K extends keyof ChatbotScenario>(key: K, value: ChatbotScenario[K]) {
         setScenario((prev) => ({ ...prev, [key]: value }));
     }
+
+    function sectionProps(key: keyof ChatbotSections) {
+        const enabled = scenario.sections[key];
+        return {
+            dimmed: !enabled,
+            action: <SectionToggle enabled={enabled} onChange={(next) => set('sections', { ...scenario.sections, [key]: next })} />,
+        };
+    }
+
+    const noContact = !scenario.sections.resortContact && !scenario.sections.regionName;
 
     async function handleSave() {
         setSaving(true);
@@ -230,7 +264,19 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
 
     return (
         <div className="space-y-6 pb-24">
-            <SectionCard title="1. 시작 인사 & 출발월" description="챗봇을 열면 가장 먼저 보이는 메시지예요.">
+            {noContact ? (
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    5번과 6번을 함께 끌 수 없어요. 둘 다 끄면 고객 연락처를 받을 수 없어서 저장되지 않습니다.
+                </div>
+            ) : (
+                !scenario.sections.resortContact && (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                        5번을 끄면 리조트 추천과 함께 휴대폰 번호도 받지 않아요. 신청 데이터에 이름만 남아 고객에게 연락하기 어렵습니다.
+                    </div>
+                )
+            )}
+
+            <SectionCard {...sectionProps('start')} title="1. 시작 인사 & 출발월" description="챗봇을 열면 가장 먼저 보이는 메시지예요.">
                 <Field label="시작 인사 + 출발월 질문" value={scenario.introMessage} onChange={(v) => set('introMessage', v)} rows={5} />
                 <div className="flex flex-wrap gap-3">
                     <MonthField label="출발월 선택 범위 시작" value={scenario.monthRangeStart} onChange={(v) => set('monthRangeStart', v)} />
@@ -238,7 +284,7 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
                 </div>
             </SectionCard>
 
-            <SectionCard title="2. 목적지" description="{value} 자리에 방금 답한 출발월이 자동으로 들어가요.">
+            <SectionCard {...sectionProps('destination')} title="2. 목적지" description="{value} 자리에 방금 답한 출발월이 자동으로 들어가요.">
                 <Field
                     label="목적지 질문"
                     hint="첫 문단(빈 줄 전까지)은 리조트·여행지 카드 버튼으로 열었을 때도 똑같이 나와요."
@@ -256,17 +302,17 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
                 />
             </SectionCard>
 
-            <SectionCard title="3. 예산">
+            <SectionCard {...sectionProps('budget')} title="3. 예산">
                 <Field label="예산 질문" value={scenario.budgetQuestion} onChange={(v) => set('budgetQuestion', v)} rows={4} />
                 <StringListEditor label="예산 선택지" items={scenario.budgets} onChange={(v) => set('budgets', v)} />
             </SectionCard>
 
-            <SectionCard title="4. 여행 기간">
+            <SectionCard {...sectionProps('duration')} title="4. 여행 기간">
                 <Field label="여행 기간 질문" value={scenario.durationQuestion} onChange={(v) => set('durationQuestion', v)} rows={4} />
                 <StringListEditor label="여행 기간 선택지" items={scenario.durations} onChange={(v) => set('durations', v)} />
             </SectionCard>
 
-            <SectionCard title="5. 리조트 추천 · 연락처" description="{destination} 자리에 선택한 목적지가 자동으로 들어가요.">
+            <SectionCard {...sectionProps('resortContact')} title="5. 리조트 추천 · 연락처" description="{destination} 자리에 선택한 목적지가 자동으로 들어가요.">
                 <Field label="리조트 후보 안내" value={scenario.resortPickerIntro} onChange={(v) => set('resortPickerIntro', v)} rows={4} />
                 <Field label="리조트 선택 후 안내" value={scenario.afterResortMessage} onChange={(v) => set('afterResortMessage', v)} rows={2} />
                 <Field
@@ -281,13 +327,13 @@ export function ChatbotConfigForm({ initialScenario }: { initialScenario: Chatbo
                 <Field label="개인정보 안내" value={scenario.privacyNotice} onChange={(v) => set('privacyNotice', v)} rows={2} />
             </SectionCard>
 
-            <SectionCard title="6. 거주 지역 · 이름">
+            <SectionCard {...sectionProps('regionName')} title="6. 거주 지역 · 이름">
                 <Field label="거주 지역 질문" value={scenario.regionQuestion} onChange={(v) => set('regionQuestion', v)} rows={2} />
                 <StringListEditor label="거주 지역 선택지" items={scenario.regions} onChange={(v) => set('regions', v)} />
                 <Field label="이름 질문" value={scenario.nameQuestion} onChange={(v) => set('nameQuestion', v)} rows={2} />
             </SectionCard>
 
-            <SectionCard title="7. 완료 화면">
+            <SectionCard {...sectionProps('completion')} title="7. 완료 화면">
                 <Field label="완료 안내 문구" value={scenario.completionSubtitle} onChange={(v) => set('completionSubtitle', v)} rows={2} />
                 <TagItemListEditor label="추가 혜택 목록" items={scenario.extraBenefits} onChange={(v) => set('extraBenefits', v)} />
                 <Field label="마무리 인사" value={scenario.completionClosing} onChange={(v) => set('completionClosing', v)} rows={5} />

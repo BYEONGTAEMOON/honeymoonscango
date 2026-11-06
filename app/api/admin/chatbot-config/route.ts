@@ -29,6 +29,13 @@ export async function PUT(request: Request) {
 
     const scenario = mergeScenario(body);
 
+    if (!scenario.sections.resortContact && !scenario.sections.regionName) {
+        return NextResponse.json(
+            { error: '5번과 6번을 함께 끌 수 없어요. 둘 다 끄면 고객 연락처를 받을 수 없습니다.' },
+            { status: 400 },
+        );
+    }
+
     try {
         const prisma = getPrisma();
         await prisma.chatbotConfig.upsert({

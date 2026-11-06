@@ -3,13 +3,10 @@
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { applyTemplate, type ChatbotScenario } from '@/lib/chatbot-scenario';
+import { enabledSteps, planNext, type FlowEntry, type OptionKind, type Step } from '@/lib/chatbot-flow';
+import type { ChatbotScenario } from '@/lib/chatbot-scenario';
 
 import { CheckIcon, CloseIcon, GiftIcon, SearchIcon, SendIcon } from './icons';
-
-type Step = 'month' | 'destination' | 'budget' | 'duration' | 'resorts' | 'contact' | 'region' | 'name' | 'done';
-
-const STEP_ORDER: Step[] = ['month', 'destination', 'budget', 'duration', 'resorts', 'contact', 'region', 'name', 'done'];
 
 const STEP_LABEL: Record<Step, string> = {
     month: '출발월 확인 중',
@@ -35,16 +32,7 @@ const PLACEHOLDER_BY_STEP: Record<Step, string> = {
     done: '상담이 접수되었습니다',
 };
 
-type OptionKind = 'month' | 'destination' | 'budget' | 'duration' | 'region';
-
-type Entry =
-    | { id: string; type: 'bot'; text: string }
-    | { id: string; type: 'user'; text: string }
-    | { id: string; type: 'options'; kind: OptionKind; options: string[] }
-    | { id: string; type: 'resort-picker'; destination: string }
-    | { id: string; type: 'checklist' }
-    | { id: string; type: 'completion'; name: string }
-    | { id: string; type: 'typing' };
+type Entry = (FlowEntry | { type: 'typing' }) & { id: string };
 
 function formatPhoneInput(raw: string): string {
     const digits = raw.replace(/\D/g, '').slice(0, 11);
@@ -57,51 +45,9 @@ function formatNameInput(raw: string): string {
     return raw.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z\s]/g, '');
 }
 
-const MAX_MONTH_OPTIONS = 36; // sanity cap in case an admin sets a huge or reversed range
-
-function parseYearMonth(value: string): { year: number; month: number } | null {
-    const match = /^(\d{4})-(\d{2})$/.exec(value);
-    if (!match) return null;
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    if (month < 1 || month > 12) return null;
-    return { year, month };
-}
-
-// Honeymoon bookings are usually planned for a specific travel window (e.g. all
-// of next year), not "the next N months from today" — so admins set a fixed
-// start/end month instead of a rolling count.
-function buildMonthRange(startValue: string, endValue: string): string[] {
-    const start = parseYearMonth(startValue);
-    const end = parseYearMonth(endValue);
-    if (!start || !end) return [];
-
-    const months: string[] = [];
-    let year = start.year;
-    let month = start.month;
-    const endIndex = end.year * 12 + end.month;
-
-    while (year * 12 + month <= endIndex && months.length < MAX_MONTH_OPTIONS) {
-        months.push(`${year}년 ${month}월`);
-        month += 1;
-        if (month > 12) {
-            month = 1;
-            year += 1;
-        }
-    }
-    return months;
-}
-
 // Always shown as a 5th option below the top 4 resort candidates — a catch-all
 // for "none of these, help me find something else" rather than more catalog data.
 const OTHER_RESORT_OPTION = '그 외 호텔 및 리조트';
-
-// The opening paragraph of the destination question ("{value} 예정으로 …") is
-// shared with the card-button flow, so editing it once updates every button.
-function firstParagraph(text: string): string {
-    const parts = text.split(/\n\s*\n/);
-    return parts.length > 1 ? parts[0] : '';
-}
 
 let idCounter = 0;
 function nextId() {
@@ -109,11 +55,8 @@ function nextId() {
     return `entry-${idCounter}`;
 }
 
-function initialTranscript(scenario: ChatbotScenario): Entry[] {
-    return [
-        { id: nextId(), type: 'bot', text: scenario.introMessage },
-        { id: nextId(), type: 'options', kind: 'month', options: buildMonthRange(scenario.monthRangeStart, scenario.monthRangeEnd) },
-    ];
+function withIds(entries: FlowEntry[]): Entry[] {
+    return entries.map((entry) => ({ ...entry, id: nextId() }));
 }
 
 type ScanModalProps = {
@@ -124,19 +67,27 @@ type ScanModalProps = {
 };
 
 function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModalProps, 'isOpen'>) {
-    const [step, setStep] = useState<Step>('month');
-    const [entries, setEntries] = useState<Entry[]>(() => initialTranscript(scenario));
-    const [selectedResorts, setSelectedResorts] = useState<string[]>([]);
-    const [inputValue, setInputValue] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const appliedPrefillRef = useRef(false);
-    const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-    const leadDataRef = useRef<{ month?: string; destination?: string; budget?: string; duration?: string; region?: string; phone?: string }>({});
     // A card's country may not be one of the chatbot's destinations (e.g. an
     // admin-entered "태국"); in that case ask for the destination normally.
     const activePrefill =
         prefillDestination && scenario.destinations.includes(prefillDestination) ? prefillDestination : undefined;
+    const [initialPlan] = useState(() => planNext(scenario, null, { prefill: activePrefill }));
+    const [step, setStep] = useState<Step>(initialPlan.step);
+    const [entries, setEntries] = useState<Entry[]>(() => withIds(initialPlan.entries));
+    const [selectedResorts, setSelectedResorts] = useState<string[]>([]);
+    const [inputValue, setInputValue] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+    const leadDataRef = useRef<{
+        month?: string;
+        destination?: string;
+        budget?: string;
+        duration?: string;
+        region?: string;
+        phone?: string;
+        name?: string;
+    }>({ destination: activePrefill });
 
     useEffect(() => {
         const pendingTimeouts = timeoutsRef.current;
@@ -152,9 +103,9 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
     }, [entries]);
 
     const progress = useMemo(() => {
-        const idx = STEP_ORDER.indexOf(step);
-        return Math.round((idx / (STEP_ORDER.length - 1)) * 100);
-    }, [step]);
+        const steps = enabledSteps(scenario.sections);
+        return Math.round((steps.indexOf(step) / (steps.length - 1)) * 100);
+    }, [step, scenario.sections]);
 
     function appendNow(entry: Entry) {
         setEntries((prev) => [...prev, entry]);
@@ -172,123 +123,32 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
         timeoutsRef.current.push(timeoutId);
     }
 
-    function handleMonthAnswer(value: string) {
-        appendNow({ id: nextId(), type: 'user', text: value });
-        leadDataRef.current.month = value;
-
-        if (activePrefill && !appliedPrefillRef.current) {
-            appliedPrefillRef.current = true;
-            leadDataRef.current.destination = activePrefill;
-            appendBotSequence(
-                [
-                    {
-                        id: nextId(),
-                        type: 'bot',
-                        text: [
-                            firstParagraph(applyTemplate(scenario.destinationQuestion, { value })),
-                            applyTemplate(scenario.prefillContinueMessage, { value, destination: activePrefill }),
-                        ]
-                            .filter(Boolean)
-                            .join('\n\n'),
-                    },
-                    { id: nextId(), type: 'user', text: activePrefill },
-                    { id: nextId(), type: 'bot', text: scenario.budgetQuestion },
-                    { id: nextId(), type: 'options', kind: 'budget', options: scenario.budgets },
-                ],
-                'budget',
-            );
-            return;
-        }
-
-        appendBotSequence(
-            [
-                { id: nextId(), type: 'bot', text: applyTemplate(scenario.destinationQuestion, { value }) },
-                { id: nextId(), type: 'options', kind: 'destination', options: scenario.destinations },
-            ],
-            'destination',
-        );
+    function submitLead() {
+        fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...leadDataRef.current, selectedResorts }),
+        }).catch(() => {
+            // Best-effort submission — the completion message still shows even if this fails.
+        });
     }
 
-    function handleDestinationAnswer(value: string) {
-        appendNow({ id: nextId(), type: 'user', text: value });
-        leadDataRef.current.destination = value;
-        appendBotSequence(
-            [
-                { id: nextId(), type: 'bot', text: scenario.budgetQuestion },
-                { id: nextId(), type: 'options', kind: 'budget', options: scenario.budgets },
-            ],
-            'budget',
-        );
+    function advanceFrom(from: Step) {
+        const { month, destination, name } = leadDataRef.current;
+        const plan = planNext(scenario, from, { month, destination, name, prefill: activePrefill });
+        if (plan.step === 'done') submitLead();
+        appendBotSequence(withIds(plan.entries), plan.step);
     }
 
-    function handleBudgetAnswer(value: string) {
+    function handleOptionAnswer(kind: OptionKind, value: string) {
         appendNow({ id: nextId(), type: 'user', text: value });
-        leadDataRef.current.budget = value;
-        appendBotSequence(
-            [
-                { id: nextId(), type: 'bot', text: scenario.durationQuestion },
-                { id: nextId(), type: 'options', kind: 'duration', options: scenario.durations },
-            ],
-            'duration',
-        );
-    }
-
-    function handleDurationAnswer(value: string) {
-        appendNow({ id: nextId(), type: 'user', text: value });
-        leadDataRef.current.duration = value;
-
-        const destination = activePrefill ?? findAnsweredDestination(entries);
-        const hasResortCandidates = (scenario.resortsByDestination[destination] ?? []).length > 0;
-
-        // Both the destination list and the resort catalog are admin-editable
-        // independently — if an admin adds/renames a destination with no
-        // matching resort data yet, skip the (otherwise empty and dead-end)
-        // picker and go straight to collecting contact info instead of showing
-        // a picker with 0 candidates.
-        if (!hasResortCandidates) {
-            appendBotSequence(
-                [
-                    {
-                        id: nextId(),
-                        type: 'bot',
-                        text: `${applyTemplate(scenario.noResortMessage, { destination })} ${scenario.afterResortMessage}`,
-                    },
-                    { id: nextId(), type: 'checklist' },
-                    { id: nextId(), type: 'bot', text: scenario.phoneQuestion },
-                    { id: nextId(), type: 'bot', text: scenario.privacyNotice },
-                ],
-                'contact',
-            );
-            return;
-        }
-
-        appendBotSequence(
-            [
-                { id: nextId(), type: 'bot', text: applyTemplate(scenario.resortPickerIntro, { destination }) },
-                { id: nextId(), type: 'resort-picker', destination },
-            ],
-            'resorts',
-        );
-    }
-
-    function findAnsweredDestination(list: Entry[]): string {
-        const idx = list.findIndex((e) => e.type === 'options' && e.kind === 'destination');
-        if (idx === -1) return scenario.destinations[0];
-        const answer = list[idx + 1];
-        return answer && answer.type === 'user' ? answer.text : scenario.destinations[0];
+        leadDataRef.current[kind] = value;
+        advanceFrom(kind);
     }
 
     function proceedToContact(summary: string) {
         appendNow({ id: nextId(), type: 'user', text: summary });
-        appendBotSequence(
-            [
-                { id: nextId(), type: 'bot', text: scenario.afterResortMessage },
-                { id: nextId(), type: 'checklist' },
-                { id: nextId(), type: 'bot', text: scenario.phoneQuestion },
-                { id: nextId(), type: 'bot', text: scenario.privacyNotice },
-            ],
-            'contact',
-        );
+        advanceFrom('resorts');
     }
 
     function toggleResort(name: string) {
@@ -299,80 +159,21 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
         });
     }
 
-    function handlePhoneSubmit() {
-        const phone = inputValue.trim();
-        if (!phone) return;
-        appendNow({ id: nextId(), type: 'user', text: phone });
-        leadDataRef.current.phone = phone;
-        setInputValue('');
-        appendBotSequence(
-            [
-                { id: nextId(), type: 'bot', text: scenario.regionQuestion },
-                { id: nextId(), type: 'options', kind: 'region', options: scenario.regions },
-            ],
-            'region',
-        );
-    }
-
-    function handleRegionAnswer(value: string) {
-        appendNow({ id: nextId(), type: 'user', text: value });
-        leadDataRef.current.region = value;
-        appendBotSequence([{ id: nextId(), type: 'bot', text: scenario.nameQuestion }], 'name');
-    }
-
-    function handleNameSubmit() {
-        const name = inputValue.trim();
-        if (!name) return;
-        appendNow({ id: nextId(), type: 'user', text: name });
-        setInputValue('');
-
-        fetch('/api/leads', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...leadDataRef.current, name, selectedResorts }),
-        }).catch(() => {
-            // Best-effort submission — the completion message still shows even if this fails.
-        });
-
-        appendBotSequence([{ id: nextId(), type: 'completion', name }], 'done');
-    }
-
     function handleFreeformSend() {
         const value = inputValue.trim();
-        if (!value) return;
+        if (!value || step === 'resorts' || step === 'done') return;
 
-        if (step === 'month') {
-            setInputValue('');
-            handleMonthAnswer(value);
-            return;
-        }
-        if (step === 'destination') {
-            setInputValue('');
-            handleDestinationAnswer(value);
-            return;
-        }
-        if (step === 'budget') {
-            setInputValue('');
-            handleBudgetAnswer(value);
-            return;
-        }
-        if (step === 'duration') {
-            setInputValue('');
-            handleDurationAnswer(value);
-            return;
-        }
+        setInputValue('');
         if (step === 'contact') {
-            handlePhoneSubmit();
-            return;
-        }
-        if (step === 'region') {
-            setInputValue('');
-            handleRegionAnswer(value);
-            return;
-        }
-        if (step === 'name') {
-            handleNameSubmit();
-            return;
+            appendNow({ id: nextId(), type: 'user', text: value });
+            leadDataRef.current.phone = value;
+            advanceFrom('contact');
+        } else if (step === 'name') {
+            appendNow({ id: nextId(), type: 'user', text: value });
+            leadDataRef.current.name = value;
+            advanceFrom('name');
+        } else {
+            handleOptionAnswer(step, value);
         }
     }
 
@@ -440,24 +241,13 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                         }
 
                         if (entry.type === 'options') {
-                            const handler =
-                                entry.kind === 'month'
-                                    ? handleMonthAnswer
-                                    : entry.kind === 'destination'
-                                      ? handleDestinationAnswer
-                                      : entry.kind === 'budget'
-                                        ? handleBudgetAnswer
-                                        : entry.kind === 'duration'
-                                          ? handleDurationAnswer
-                                          : handleRegionAnswer;
-
                             return (
                                 <div key={entry.id} className={`grid grid-cols-2 gap-2 sm:grid-cols-4 ${isLast ? '' : 'pointer-events-none opacity-40'}`}>
                                     {entry.options.map((option) => (
                                         <button
                                             key={option}
                                             type="button"
-                                            onClick={() => handler(option)}
+                                            onClick={() => handleOptionAnswer(entry.kind, option)}
                                             className="cursor-pointer rounded-full border border-white/15 bg-white/5 px-3 py-2.5 text-center text-sm font-semibold text-white transition-all hover:border-brand hover:bg-white/10 hover:shadow-[0_0_0_1px_var(--brand),0_0_16px_-4px_var(--brand)]"
                                         >
                                             {option}
@@ -599,7 +389,7 @@ function ScanModalInner({ onClose, prefillDestination, scenario }: Omit<ScanModa
                                             <CheckIcon className="h-7 w-7 text-white" />
                                         </span>
                                         <div>
-                                            <p className="text-base font-bold text-white">{entry.name}님, 스캔 신청 완료!</p>
+                                            <p className="text-base font-bold text-white">{entry.name ? `${entry.name}님, 스캔 신청 완료!` : '스캔 신청 완료!'}</p>
                                             <p className="mt-2 text-sm leading-relaxed text-white/60">{scenario.completionSubtitle}</p>
                                         </div>
                                     </div>

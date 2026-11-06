@@ -16,7 +16,18 @@ export type PopularResort = {
     image: string;
 };
 
+export type ChatbotSections = {
+    start: boolean;
+    destination: boolean;
+    budget: boolean;
+    duration: boolean;
+    resortContact: boolean;
+    regionName: boolean;
+    completion: boolean;
+};
+
 export type ChatbotScenario = {
+    sections: ChatbotSections;
     introMessage: string;
     monthRangeStart: string;
     monthRangeEnd: string;
@@ -476,6 +487,15 @@ const DEFAULT_POPULAR_RESORTS: PopularResort[] = [
 ];
 
 export const DEFAULT_CHATBOT_SCENARIO: ChatbotScenario = {
+    sections: {
+        start: true,
+        destination: true,
+        budget: true,
+        duration: true,
+        resortContact: true,
+        regionName: true,
+        completion: true,
+    },
     introMessage:
         '안녕하세요, 허니문 스캔GO입니다. 😊\n출발월·목적지·예산만 알려주시면 조건에 딱 맞는 리조트와 예상 견적, 항공 잔여좌석까지 한 번에 비교해드려요.\n\n먼저, 출발은 몇 월쯤으로 생각하고 계세요?\n날짜가 아직 미정이어도 괜찮아요. 출발월만 알아도 가능한 항공 스케줄과 받으실 수 있는 혜택을 먼저 확인해드릴게요.',
     monthRangeStart: '2027-01',
@@ -559,5 +579,9 @@ export function mergeScenario(
     partial: Partial<ChatbotScenario> | null | undefined,
 ): ChatbotScenario {
     if (!partial) return DEFAULT_CHATBOT_SCENARIO;
-    return { ...DEFAULT_CHATBOT_SCENARIO, ...partial };
+    return {
+        ...DEFAULT_CHATBOT_SCENARIO,
+        ...partial,
+        sections: { ...DEFAULT_CHATBOT_SCENARIO.sections, ...partial.sections },
+    };
 }

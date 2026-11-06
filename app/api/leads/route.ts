@@ -24,8 +24,10 @@ export async function POST(request: Request) {
 
     const { month, destination, budget, duration, region, name, phone, selectedResorts } = body;
 
-    if (!name || !phone) {
-        return NextResponse.json({ error: '이름과 연락처는 필수입니다.' }, { status: 400 });
+    // Either can be switched off in the scenario, but the admin API refuses to
+    // turn off both, so a real submission always has at least one.
+    if (!name && !phone) {
+        return NextResponse.json({ error: '이름 또는 연락처가 필요합니다.' }, { status: 400 });
     }
 
     const ip = getClientIp(request);
@@ -52,16 +54,16 @@ export async function POST(request: Request) {
                 budget: budget ?? null,
                 duration: duration ?? null,
                 region: region ?? null,
-                name,
-                phone,
+                name: name ?? null,
+                phone: phone ?? null,
                 selectedResorts: selectedResortsText,
                 ip,
             },
         });
 
         await notifyNewLead({
-            name,
-            phone,
+            name: name ?? null,
+            phone: phone ?? null,
             month: month ?? null,
             destination: destination ?? null,
             budget: budget ?? null,
